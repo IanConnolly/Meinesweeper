@@ -18,7 +18,7 @@ cabal-version:       >=1.10
 executable Meinesweeper
   main-is:             Meinesweeper/Main.hs
   -- other-modules:
-  -- other-extensions:
+  default-extensions:  OverlappingInstances, TypeSynonymInstances, FlexibleInstances, InstanceSigs
   build-depends:       base >=4.6 && <4.8
   hs-source-dirs:      src/
   default-language:    Haskell2010

@@ -3,4 +3,4 @@ module Main where
 import Meinesweeper.Board
 
 main :: IO ()
-main = putStrLn "Hello World"
+main = print $ createBoard 10 10
