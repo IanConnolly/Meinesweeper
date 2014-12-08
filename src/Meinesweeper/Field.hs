@@ -1,13 +1,23 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Meinesweeper.Field where
+import Control.Lens
 
-data Field = Field { mined :: Bool
-                   , flagged :: Bool
-                   , covered :: Bool
+data Field = Field { _mined :: Bool
+                   , _flagged :: Bool
+                   , _covered :: Bool
                    }
 
 instance Show Field where
   show :: Field -> String
   show f =
-    if flagged f then "| <| |" else
-       if covered f then "| [] |" else
-          if mined f then "| * |" else "| |"
+    if _flagged f then "| <| |" else
+       if _covered f then "| [] |" else
+          if _mined f then "| * |" else "| |"
+
+newField :: Field
+newField = Field { _mined = False
+				 , _flagged = False
+				 , _covered = True
+				 }
+
+makeLenses ''Field
