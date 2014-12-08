@@ -1,6 +1,6 @@
-module Meinesweeper.Field where
+module Meinesweeper.Field (Field (Field, mined, flagged, covered)) where
 
-data Field = Field { mine :: Bool
+data Field = Field { mined :: Bool
                    , flagged :: Bool
                    , covered :: Bool
                    } deriving (Show)
