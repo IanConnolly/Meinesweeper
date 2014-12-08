@@ -16,4 +16,4 @@ createBoard h w = insertBombs $ createEmptyBoard h w
                                                                    }
           insertBombs = DL.map inserter
           inserter row = let (ys, zs) = splitAt (w - 1) row in -- add in smart function here
-          					 ys ++ [Field { mined = True, flagged = False, covered = False}] ++ zs
+                            ys ++ [Field { mined = True, flagged = False, covered = False}] ++ zs
