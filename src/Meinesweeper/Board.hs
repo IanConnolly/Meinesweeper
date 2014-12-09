@@ -1,4 +1,11 @@
-module Meinesweeper.Board (Board, createBoard, flagSquare) where
+module Meinesweeper.Board (Board, 
+                           createBoard,
+                           isMined,
+                           isCovered,
+                           isFlagged,
+                           uncover,
+                           flagSquare,
+                           unflagSquare) where
 
 import qualified Meinesweeper.Field as MF
 import Data.Maybe
@@ -36,11 +43,11 @@ isMined x y = viewSquare x y MF.covered
 isCovered :: Int -> Int -> GameBoard Bool
 isCovered x y = viewSquare x y MF.covered
 
-uncover :: Int -> Int -> GameBoard ()
-uncover x y = modifySquare x y MF.covered False
-
 isFlagged :: Int -> Int -> GameBoard Bool
 isFlagged x y = viewSquare x y MF.flagged
+
+uncover :: Int -> Int -> GameBoard ()
+uncover x y = modifySquare x y MF.covered False
 
 flagSquare :: Int -> Int -> GameBoard ()
 flagSquare x y = modifySquare x y MF.flagged True
