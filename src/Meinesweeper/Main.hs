@@ -1,6 +1,6 @@
 module Main where
 
-import Meinesweeper.Board
+import Meinesweeper.Game
 
 main :: IO ()
-main = print $ createBoard 10 10
+main = putStrLn showBoard
