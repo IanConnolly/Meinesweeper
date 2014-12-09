@@ -9,13 +9,13 @@ module Meinesweeper.Board (GameBoard,
                            unflag,
                            doNothing,
                            uncoverAll,
-                           getBoard) where
+                           showBoard) where
 
 import qualified Meinesweeper.Field as MF
 import Data.Maybe
 import Control.Lens
 import Control.Lens.At
-import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..))
+import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..), fst)
 import qualified Data.List as DL
 import Data.Vector hiding (modify)
 import Control.Monad.State
@@ -61,21 +61,19 @@ unflag x y = modifySquare x y MF.flagged False
 
 uncoverAll :: GameBoard ()
 uncoverAll = do
-  board <- get
-  let b = modifyBoard board MF.covered False
-  put b
+    modifyBoard MF.covered False
 
 doNothing :: GameBoard ()
-doNothing = do
-  g <- get
-  put g
+doNothing = return ()
 
 getBoard :: GameBoard String
 getBoard = do
     board <- get
     return $ show board
 
-modifyBoard b record val = map (map (set record val)) b
+showBoard = \b -> fst $ runState getBoard b
+
+modifyBoard record val = modify $ map (map (set record val))
 
 modifySquare x y record val = modify $ over (element y . element x . record) (const val)
 
