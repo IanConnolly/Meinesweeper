@@ -4,8 +4,8 @@ module Meinesweeper.Board (Board,
                            isCovered,
                            isFlagged,
                            uncover,
-                           flagSquare,
-                           unflagSquare) where
+                           flag,
+                           unflag) where
 
 import qualified Meinesweeper.Field as MF
 import Data.Maybe
@@ -49,11 +49,11 @@ isFlagged x y = viewSquare x y MF.flagged
 uncover :: Int -> Int -> GameBoard ()
 uncover x y = modifySquare x y MF.covered False
 
-flagSquare :: Int -> Int -> GameBoard ()
-flagSquare x y = modifySquare x y MF.flagged True
+flag :: Int -> Int -> GameBoard ()
+flag x y = modifySquare x y MF.flagged True
 
-unflagSquare :: Int -> Int -> GameBoard ()
-unflagSquare x y = modifySquare x y MF.flagged False
+unflag :: Int -> Int -> GameBoard ()
+unflag x y = modifySquare x y MF.flagged False
 
 modifySquare x y record val = modify $ over (element y . element x . record) (const val)
 viewSquare x y record = do
