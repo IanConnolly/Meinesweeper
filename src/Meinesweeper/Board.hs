@@ -1,20 +1,24 @@
-module Meinesweeper.Board (Board, 
+module Meinesweeper.Board (GameBoard,
+                           Board,
                            createBoard,
                            isMined,
                            isCovered,
                            isFlagged,
                            uncover,
                            flag,
-                           unflag) where
+                           unflag,
+                           doNothing,
+                           uncoverAll,
+                           showBoard) where
 
 import qualified Meinesweeper.Field as MF
 import Data.Maybe
 import Control.Lens
 import Control.Lens.At
-import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..))
+import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..), fst)
 import qualified Data.List as DL
 import Data.Vector hiding (modify)
-import Control.Monad.State 
+import Control.Monad.State
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
@@ -55,7 +59,24 @@ flag x y = modifySquare x y MF.flagged True
 unflag :: Int -> Int -> GameBoard ()
 unflag x y = modifySquare x y MF.flagged False
 
+uncoverAll :: GameBoard ()
+uncoverAll = do
+    modifyBoard MF.covered False
+
+doNothing :: GameBoard ()
+doNothing = return ()
+
+getBoard :: GameBoard String
+getBoard = do
+    board <- get
+    return $ show board
+
+showBoard = \b -> fst $ runState getBoard b
+
+modifyBoard record val = modify $ map (map (set record val))
+
 modifySquare x y record val = modify $ over (element y . element x . record) (const val)
+
 viewSquare x y record = do
     g <- get
     return $ fromJust $ preview (element y . element x . record) $ g
