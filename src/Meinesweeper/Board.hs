@@ -71,7 +71,7 @@ getBoard = do
     board <- get
     return $ show board
 
-showBoard = \b -> fst $ runState getBoard b
+showBoard = evalState getBoard
 
 modifyBoard record val = modify $ map (map (set record val))
 
