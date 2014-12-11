@@ -31,5 +31,5 @@ isWon = do
     let fboard = DV.concat $ DV.toList board
     return $ uncovered fboard == bombs fboard
     where
-        uncovered l = DV.length $ DV.filter (\x -> not $ fromJust $ preview covered x) l
-        bombs l = DV.length $ DV.filter (\x -> fromJust $ preview mined x) l
+        uncovered l = DV.length $ DV.filter (not . fromJust . preview covered) l
+        bombs l = DV.length $ DV.filter (fromJust . preview mined) l

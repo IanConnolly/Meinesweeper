@@ -28,13 +28,12 @@ type Width = Int
 instance Show Board where
     show :: Board -> String
     show b = shower $ toList $ map toList b
-        where shower [] = ""
-              shower (b:bs) = DL.concatMap show b DL.++ "\n" DL.++ (shower bs)
+        where shower = foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
 
 createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
 createBoard h w = insertBombs $ createEmptyBoard h w
-    where createEmptyBoard h w = replicate h $ replicate w $ MF.newField
+    where createEmptyBoard h w = replicate h $ replicate w MF.newField
           insertBombs = map inserter
           inserter = over (element (generateIndex w) . MF.mined) (const True)
 
@@ -60,8 +59,7 @@ unflag :: Int -> Int -> GameBoard ()
 unflag x y = modifySquare x y MF.flagged False
 
 uncoverAll :: GameBoard ()
-uncoverAll = do
-    modifyBoard MF.covered False
+uncoverAll = modifyBoard MF.covered False
 
 doNothing :: GameBoard ()
 doNothing = return ()
@@ -79,4 +77,4 @@ modifySquare x y record val = modify $ over (element y . element x . record) (co
 
 viewSquare x y record = do
     g <- get
-    return $ fromJust $ preview (element y . element x . record) $ g
+    return $ fromJust $ preview (element y . element x . record) g
