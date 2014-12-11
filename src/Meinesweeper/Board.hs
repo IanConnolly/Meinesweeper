@@ -28,7 +28,7 @@ type Width = Int
 instance Show Board where
     show :: Board -> String
     show b = shower $ toList $ map toList b
-        where shower = foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
+        where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
 
 createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
