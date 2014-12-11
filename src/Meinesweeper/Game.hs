@@ -1,7 +1,11 @@
 module Meinesweeper.Game where
 
 import Meinesweeper.Board
+import Meinesweeper.Field
 import Control.Monad.State
+import Data.Vector as DV
+import Data.Maybe
+import Control.Lens
 
 type Height = Int
 type Width = Int
@@ -20,3 +24,12 @@ checkForMine :: Int -> Int -> GameBoard ()
 checkForMine x y = do
     m <- isMined x y
     if m then uncoverAll else uncover x y
+
+isWon :: GameBoard Bool
+isWon = do
+    board <- get
+    let fboard = DV.concat $ DV.toList board
+    return $ uncovered fboard == bombs fboard
+    where
+        uncovered l = DV.length $ DV.filter (\x -> not $ fromJust $ preview covered x) l
+        bombs l = DV.length $ DV.filter (\x -> fromJust $ preview mined x) l
