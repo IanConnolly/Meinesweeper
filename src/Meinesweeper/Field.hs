@@ -16,8 +16,8 @@ instance Show Field where
 
 newField :: Field
 newField = Field { _mined = False
-				 , _flagged = False
-				 , _covered = True
-				 }
+                 , _flagged = False
+                 , _covered = True
+                 }
 
 makeLenses ''Field
