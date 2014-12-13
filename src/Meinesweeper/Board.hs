@@ -31,7 +31,7 @@ instance Show Board where
     show b = shower $ toList $ map toList b
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
-
+-- create an initial board
 createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
 createBoard h w = insertBombs $ createEmptyBoard h w
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
@@ -41,6 +41,7 @@ createBoard h w = insertBombs $ createEmptyBoard h w
 generateIndex :: Int -> Int -- TODO: Dan's random index generator
 generateIndex x = x - 1
 
+-- check a board for the win condition
 isWon :: GameBoard Bool
 isWon = do
     board <- get
@@ -78,10 +79,13 @@ getBoard = do
 
 showBoard = evalState getBoard
 
+-- set a record of all the squares in the Board to val
 modifyBoard record val = modify $ map (map (set record val))
 
+-- set the record of the square at board[x][y] to val
 modifySquare x y record val = modify $ over (element x . element y . record) (const val)
 
+-- view the value of the record of the square at board[x][y]
 viewSquare x y record = do
     g <- get
     return $ fromJust $ preview (element x . element y . record) g

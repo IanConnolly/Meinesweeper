@@ -13,8 +13,8 @@ makeLenses ''Meinesweeper
 
 type Game = StateT Meinesweeper (GameBoard) 
 
-clickField :: Int -> Int -> Game ()
-clickField x y = do
+leftClickField :: Int -> Int -> Game ()
+leftClickField x y = do
     c <- lift $ isCovered x y
     if c 
         then lift $ do
