@@ -15,7 +15,7 @@ import qualified Meinesweeper.Field as MF
 import Data.Maybe
 import Control.Lens
 import Control.Lens.At
-import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..), fst, (==), not)
+import Prelude (($), (.), Bool(..), Int(..), Float(..), const, Num(..), Show(..), String(..), fst, (==), not)
 import qualified Data.List as DL
 import Data.Vector hiding (modify)
 import Control.Monad.State
@@ -24,6 +24,7 @@ type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
 type Height = Int
 type Width = Int
+type Seed = Float
 
 instance Show Board where
     show :: Board -> String

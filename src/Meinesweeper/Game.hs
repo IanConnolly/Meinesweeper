@@ -27,4 +27,10 @@ clickField x y = do
 rightClickField :: Int -> Int -> Game ()
 rightClickField x y = do
     f <- lift $ isFlagged x y
-    if f then lift $ flag x y else lift $ unflag x y
+    if f 
+        then do
+            lift $ flag x y 
+            flagsLeft -= 1
+        else do
+            lift $ unflag x y
+            flagsLeft += 1
