@@ -41,6 +41,34 @@ createBoard h w = insertBombs $ createEmptyBoard h w
 generateIndex :: Int -> Int -- TODO: Dan's random index generator
 generateIndex x = x - 1
 
+-- Board -> [[Int]]
+-- Each elem contains the number of surrounding bombs
+-- Or -1 if the elem is itself a bomb
+adjacency :: GameBoard [[Int]]
+adjacency = do
+    board <- get
+    let numBoard = numberfiedBoard board
+    let zipped = countBombs numBoard
+    return $ removeBombSquares zipped numBoard
+    where
+        numberfiedBoard = toList . map (toList . map (bombToNum . fromJust . preview MF.mined))
+        bombToNum a = if a then 1 else 0 
+        countBombs = reduceZip . DL.map mapZip
+        -- combine surrounding numbers
+        -- ie. [1,2,3] -> [3,6,5]
+        -- the intermediate steps can be seen as:
+        -- [1,2,3] -> [0,1,2,3,0] -> [0+1+2, 1+2+3, 2+3+0] ->[3,6,5] 
+        mapZip = zipper add3 0 
+        -- 2D (eg. a pointwise) combination, on the above. padding elem is an extra list of zeroes
+        reduceZip = zipper (DL.zipWith3 add3) (DL.repeat 0)
+        -- higher order abstraction of above
+        -- f is combiner, z is padding element
+        zipper f z xs = DL.zipWith3 f (z:xs) xs (DL.tail xs DL.++ [z])
+        add3 x y z = x + y + z -- convenience
+        -- compare each new cell with its original, and change new cell to -1 if a bomb was there
+        removeBombSquares new orig = DL.zipWith (DL.zipWith (del)) new orig 
+        new `del` orig = if orig == 0 then new else -1
+
 -- check a board for the win condition
 isWon :: GameBoard Bool
 isWon = do
