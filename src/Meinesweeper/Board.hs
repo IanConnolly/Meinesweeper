@@ -73,8 +73,8 @@ showBoard = evalState getBoard
 
 modifyBoard record val = modify $ map (map (set record val))
 
-modifySquare x y record val = modify $ over (element y . element x . record) (const val)
+modifySquare x y record val = modify $ over (element x . element y . record) (const val)
 
 viewSquare x y record = do
     g <- get
-    return $ fromJust $ preview (element y . element x . record) g
+    return $ fromJust $ preview (element x . element y . record) g
