@@ -4,10 +4,10 @@ module Meinesweeper.Board (GameBoard,
                            isMined,
                            isCovered,
                            isFlagged,
-                           uncover,
+                           isWon,
                            flag,
                            unflag,
-                           doNothing,
+                           uncover,
                            uncoverAll,
                            showBoard) where
 
@@ -15,7 +15,7 @@ import qualified Meinesweeper.Field as MF
 import Data.Maybe
 import Control.Lens
 import Control.Lens.At
-import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..), fst)
+import Prelude (($), (.), Bool(..), Int(..), const, Num(..), Show(..), String(..), fst, (==), not)
 import qualified Data.List as DL
 import Data.Vector hiding (modify)
 import Control.Monad.State
@@ -40,6 +40,15 @@ createBoard h w = insertBombs $ createEmptyBoard h w
 generateIndex :: Int -> Int -- TODO: Dan's random index generator
 generateIndex x = x - 1
 
+isWon :: GameBoard Bool
+isWon = do
+    board <- get
+    let fboard = concat $ toList board
+    return $ uncovered fboard == bombs fboard
+    where
+        uncovered = length . filter (not . fromJust . preview MF.covered)
+        bombs = length . filter (fromJust . preview MF.mined)
+
 isMined :: Int -> Int -> GameBoard Bool
 isMined x y = viewSquare x y MF.covered
 
@@ -60,9 +69,6 @@ unflag x y = modifySquare x y MF.flagged False
 
 uncoverAll :: GameBoard ()
 uncoverAll = modifyBoard MF.covered False
-
-doNothing :: GameBoard ()
-doNothing = return ()
 
 getBoard :: GameBoard String
 getBoard = do
