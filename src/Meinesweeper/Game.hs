@@ -21,18 +21,18 @@ type Game = StateT Meinesweeper (GameBoard)
 
 clickField :: Int -> Int -> Game ()
 clickField x y = do
-    c <- lift isCovered x y
-    if c then lift checkForMine x y else return ()
+    c <- lift $ isCovered x y
+    if c then checkForMine x y else return ()
 
 rightClickField :: Int -> Int -> Game ()
 rightClickField x y = do
-    f <- lift isFlagged x y
-    if f then lift flag x y else lift unflag x y
+    f <- lift $ isFlagged x y
+    if f then lift $ flag x y else lift $ unflag x y
 
 checkForMine :: Int -> Int -> Game ()
 checkForMine x y = do
-    m <- lift isMined x y
-    if m then lift $ uncoverAll else lift uncover x y
+    m <- lift $ isMined x y
+    if m then lift $ uncoverAll else lift $ uncover x y
 
 isWon :: GameBoard Bool
 isWon = do
