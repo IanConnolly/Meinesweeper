@@ -2,6 +2,7 @@
 module Meinesweeper.Game where
 
 import Meinesweeper.Board
+import Control.Monad
 import Control.Monad.State
 import Control.Lens
 
@@ -11,18 +12,17 @@ data Meinesweeper = Meinesweeper
 
 makeLenses ''Meinesweeper
 
-type Game = StateT Meinesweeper (GameBoard) 
+type Game = StateT Meinesweeper GameBoard 
 
 leftClickField :: Int -> Int -> Game ()
 leftClickField x y = do
     c <- lift $ isCovered x y
-    if c 
-        then lift $ do
+    when c $
+        lift $ do
             m <- isMined x y
-            if m 
-                then uncoverAll 
+            if m
+                then uncoverAll
                 else uncover x y
-        else return ()
 
 rightClickField :: Int -> Int -> Game ()
 rightClickField x y = do

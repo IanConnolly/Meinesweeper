@@ -11,14 +11,16 @@ module Meinesweeper.Board (GameBoard,
                            uncoverAll,
                            showBoard) where
 
-import qualified Meinesweeper.Field as MF
-import Data.Maybe
+import Prelude (Bool(..), Int(..), Float(..), Num(..), Show(..), String(..),
+                const, fst, (==), not, ($), (.))
+
 import Control.Lens
 import Control.Lens.At
-import Prelude (($), (.), Bool(..), Int(..), Float(..), const, Num(..), Show(..), String(..), fst, (==), not)
-import qualified Data.List as DL
-import Data.Vector hiding (modify)
 import Control.Monad.State
+import Data.Maybe
+import Data.Vector hiding (modify)
+import qualified Data.List as DL
+import qualified Meinesweeper.Field as MF
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
@@ -66,8 +68,8 @@ adjacency = do
         zipper f z xs = DL.zipWith3 f (z:xs) xs (DL.tail xs DL.++ [z])
         add3 x y z = x + y + z -- convenience
         -- compare each new cell with its original, and change new cell to -1 if a bomb was there
-        removeBombSquares new orig = DL.zipWith (DL.zipWith (del)) new orig 
-        new `del` orig = if orig == 0 then new else -1
+        removeBombSquares = DL.zipWith (DL.zipWith removeMine)
+        new `removeMine` orig = if orig == 0 then new else -1
 
 -- check a board for the win condition
 isWon :: GameBoard Bool
