@@ -9,18 +9,21 @@ module Meinesweeper.Board (GameBoard,
                            unflag,
                            uncover,
                            uncoverAll,
-                           showBoard) where
+                           showBoard,
+                           boardGUI) where
 
 import Prelude (Bool(..), Int(..), Float(..), Num(..), Show(..), String(..),
-                const, fst, (==), not, ($), (.))
+                const, fst, (==), not, ($), (.), IO)
 
 import Control.Lens
 import Control.Lens.At
 import Control.Monad.State
+import qualified Control.Monad as M
 import Data.Maybe
 import Data.Vector hiding (modify)
 import qualified Data.List as DL
 import qualified Meinesweeper.Field as MF
+import Graphics.UI.WX (Frame, Button)
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
@@ -32,6 +35,9 @@ instance Show Board where
     show :: Board -> String
     show b = shower $ toList $ map toList b
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
+
+boardGUI :: Board -> Frame () -> IO [[Button ()]]
+boardGUI b f = M.mapM M.sequence $ DL.map (DL.map (MF.fieldButton f)) $ toList $ map toList b
 
 -- create an initial board
 createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
@@ -54,13 +60,13 @@ adjacency = do
     return $ removeBombSquares zipped numBoard
     where
         numberfiedBoard = toList . map (toList . map (bombToNum . fromJust . preview MF.mined))
-        bombToNum a = if a then 1 else 0 
+        bombToNum a = if a then 1 else 0
         countBombs = reduceZip . DL.map mapZip
         -- combine surrounding numbers
         -- ie. [1,2,3] -> [3,6,5]
         -- the intermediate steps can be seen as:
-        -- [1,2,3] -> [0,1,2,3,0] -> [0+1+2, 1+2+3, 2+3+0] ->[3,6,5] 
-        mapZip = zipper add3 0 
+        -- [1,2,3] -> [0,1,2,3,0] -> [0+1+2, 1+2+3, 2+3+0] ->[3,6,5]
+        mapZip = zipper add3 0
         -- 2D (eg. a pointwise) combination, on the above. padding elem is an extra list of zeroes
         reduceZip = zipper (DL.zipWith3 add3) (DL.repeat 0)
         -- higher order abstraction of above
