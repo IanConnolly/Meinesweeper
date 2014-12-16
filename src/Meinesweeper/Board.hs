@@ -23,6 +23,7 @@ import Data.Vector hiding (modify)
 import qualified Data.List as DL
 import qualified Meinesweeper.Field as MF
 import Graphics.UI.WX (Panel, Frame, Button)
+import System.Random
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
@@ -42,8 +43,8 @@ createBoard h w = insertBombs $ createEmptyBoard h w
           insertBombs = map inserter
           inserter = over (element (generateIndex w) . MF.mined) (const True)
 
-generateIndex :: Int -> Int -- TODO: Dan's random index generator
-generateIndex x = x - 1
+generateIndex :: Int -> IO Int
+generateIndex width = getStdRandom (randomR (0, width))
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding bombs
