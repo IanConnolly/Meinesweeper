@@ -66,13 +66,18 @@ mainMenu = do
                    ,floatCentre $ widget quit]]]
 
 fieldButton :: Frame () -> Field -> IO (Button ())
-fieldButton panel field
-  | _flagged field = makeButton panel "<|"
-  | _covered field = makeButton panel "  "
-  | _mined field   = makeButton panel "**"
-  | otherwise      = makeButton panel "  "
-  where
-   makeButton p txt = smallButton p [text := txt]
+fieldButton f field
+  | _covered field = makeButton f "  "
+  | _flagged field = makeButton f "<|"
+  | _mined field   = makeButton f "**"
+  | otherwise      = makeButton f "  "
+    where
+      makeButton f txt = smallButton f [text := txt
+                                              ,on click := (\b -> let (x,y) = getPoint b
+                                                                  in leftClickField x y)
+                                              ,on clickRight := (\b -> let (x,y) = getPoint b
+                                                                       in rightClickField x y)]
+      getPoint p = (pointX p, pointY p)
 
 boardGUI :: Board -> Frame () -> IO [[Button ()]]
 boardGUI b f = mapM (mapM (fieldButton f)) (DV.toList $ DV.map DV.toList b)
