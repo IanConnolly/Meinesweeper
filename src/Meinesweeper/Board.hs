@@ -9,8 +9,7 @@ module Meinesweeper.Board (GameBoard,
                            unflag,
                            uncover,
                            uncoverAll,
-                           showBoard,
-                           boardGUI) where
+                           showBoard) where
 
 import Prelude (Bool(..), Int(..), Float(..), Num(..), Show(..), String(..),
                 const, fst, (==), not, ($), (.), IO)
@@ -23,7 +22,7 @@ import Data.Maybe
 import Data.Vector hiding (modify)
 import qualified Data.List as DL
 import qualified Meinesweeper.Field as MF
-import Graphics.UI.WX (Frame, Button)
+import Graphics.UI.WX (Panel, Frame, Button)
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
@@ -35,9 +34,6 @@ instance Show Board where
     show :: Board -> String
     show b = shower $ toList $ map toList b
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
-
-boardGUI :: Board -> Frame () -> IO [[Button ()]]
-boardGUI b f = M.mapM M.sequence $ DL.map (DL.map (MF.fieldButton f)) $ toList $ map toList b
 
 -- create an initial board
 createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
