@@ -1,36 +1,27 @@
 module Main where
 
 import Meinesweeper.Game
-import Graphics.UI.WX
 import Meinesweeper.Field
 import Meinesweeper.Board
-import qualified Data.Vector as DV
 import Control.Monad
 import System.Random
+import Graphics.UI.WX
+import qualified Data.Vector as DV
 
 --Easy height width and mines
-easyH :: Int
-easyH = 8
-easyW :: Int
-easyW = 8
-easyM :: Int
-easyM = 10
+easyH = 8 :: Int
+easyW = 8 :: Int
+easyM = 10 :: Int
 
 --Medium height width and mines
-mediumH :: Int
-mediumH = 15
-mediumW :: Int
-mediumW = 15
-mediumM :: Int
-mediumM = 40
+mediumH = 15 :: Int
+mediumW = 15 :: Int
+mediumM = 40 :: Int
 
 --Hard height width and mines
-hardH :: Int
-hardH = 15
-hardW :: Int
-hardW = 29
-hardM :: Int
-hardM = 99
+hardH = 15 :: Int
+hardW = 29 :: Int
+hardM = 99 :: Int
 
 newBoard :: String -> Int -> Int -> Int -> IO ()
 newBoard title h w m = do

@@ -14,9 +14,7 @@ module Meinesweeper.Board (GameBoard,
 import Prelude (Bool(..), Int(..), Float(..), Num(..), Show(..), String(..),
                 const, fst, (==), not, ($), (.), IO, mod, div) 
 import Control.Lens
-import Control.Lens.At
 import Control.Monad.State
-import qualified Control.Monad as M
 import System.Random
 import Data.Tuple
 import Data.Maybe
