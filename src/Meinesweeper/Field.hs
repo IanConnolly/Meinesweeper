@@ -22,4 +22,11 @@ newField = Field { _mined = False
                  , _covered = True
                  }
 
+newMineField :: Field
+newMineField = Field { _mined = True
+                     , _flagged = False
+                     , _covered = True
+                     }
+
+
 makeLenses ''Field

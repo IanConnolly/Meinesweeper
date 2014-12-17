@@ -6,6 +6,7 @@ import Meinesweeper.Field
 import Meinesweeper.Board
 import qualified Data.Vector as DV
 import Control.Monad
+import System.Random
 
 --Easy height width and mines
 easyH :: Int
@@ -31,11 +32,12 @@ hardW = 29
 hardM :: Int
 hardM = 99
 
-newBoard :: String -> Int -> Int -> IO ()
-newBoard title h w = do
+newBoard :: String -> Int -> Int -> Int -> IO ()
+newBoard title h w m = do
   f <- frameFixed [text := title]
 
-  let board = createBoard h w
+  g <- newStdGen
+  let board = createBoard h w m g
   boardButtons <- boardGUI board f
   let gui = widgetise h boardButtons
   quit <- button f [text := "Quit"
@@ -57,11 +59,11 @@ mainMenu = do
   quit <- button f [ text := "Quit"
                    , on command := close f]
   easy <- button f [ text := "Easy"
-                   , on click := (\b -> close f >> newBoard "Easy" easyH easyW) ]
+                   , on click := (\b -> close f >> newBoard "Easy" easyH easyW easyM) ]
   medium <- button f [ text := "Medium"
-                     , on click := (\b -> close f >> newBoard "Medium" mediumH mediumW) ]
+                     , on click := (\b -> close f >> newBoard "Medium" mediumH mediumW mediumM) ]
   hard <- button f [ text := "Hard"
-                   , on click := (\b -> close f >> newBoard "Hard" hardH hardW) ]
+                   , on click := (\b -> close f >> newBoard "Hard" hardH hardW hardM) ]
 
   --Frame layout
   set f [layout := minsize (sz 200 100) $ column 1

@@ -12,8 +12,7 @@ module Meinesweeper.Board (GameBoard,
                            showBoard) where
 
 import Prelude (Bool(..), Int(..), Float(..), Num(..), Show(..), String(..),
-                const, fst, (==), not, ($), (.), IO)
-
+                const, fst, (==), not, ($), (.), IO, mod, div) 
 import Control.Lens
 import Control.Lens.At
 import Control.Monad.State
@@ -24,6 +23,7 @@ import qualified Data.List as DL
 import qualified Meinesweeper.Field as MF
 import Graphics.UI.WX (Panel, Frame, Button)
 import System.Random
+import Data.Tuple
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
@@ -37,14 +37,18 @@ instance Show Board where
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
 -- create an initial board
-createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
-createBoard h w = insertBombs $ createEmptyBoard h w
+-- createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
+createBoard :: Height -> Width -> Int -> StdGen -> Board
+createBoard h w m g = insertMines xCoords yCoords $ createEmptyBoard h w
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
-          insertBombs = map inserter
-          inserter = over (element (generateIndex w) . MF.mined) (const True)
+          xCoords = DL.take m $ randomRs (0, w) (fst $ split g)
+          yCoords = DL.take m $ randomRs (0, h) (snd $ split g)
 
-generateIndex :: Int -> IO Int
-generateIndex width = getStdRandom (randomR (0, width))
+insertMines :: [Int] -> [Int] -> Board -> Board
+insertMines xs ys board = go inserter (DL.zip xs ys) board
+   where go action [] board = board
+         go action (x:xs) board = go action xs (action (fst x) (snd x) board)
+         inserter x y = over (element x . element y . MF.mined) (const True)
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding bombs
