@@ -1,7 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Meinesweeper.Field where
 import Control.Lens
-import Graphics.UI.WX (Panel, Frame, smallButton, Button, text, Prop(..), clientSize, sz)
 
 data Field = Field { _mined :: Bool
                    , _flagged :: Bool
@@ -21,12 +20,6 @@ newField = Field { _mined = False
                  , _flagged = False
                  , _covered = True
                  }
-
-newMineField :: Field
-newMineField = Field { _mined = True
-                     , _flagged = False
-                     , _covered = True
-                     }
 
 
 makeLenses ''Field

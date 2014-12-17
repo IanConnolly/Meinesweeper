@@ -5,7 +5,6 @@ import Meinesweeper.Board
 import Control.Monad
 import Control.Monad.State
 import Control.Lens
-import Graphics.UI.WX (Panel, Frame, Button)
 
 data Meinesweeper = Meinesweeper
     { _flagsLeft :: Int

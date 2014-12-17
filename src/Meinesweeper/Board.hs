@@ -17,19 +17,17 @@ import Control.Lens
 import Control.Lens.At
 import Control.Monad.State
 import qualified Control.Monad as M
+import System.Random
+import Data.Tuple
 import Data.Maybe
 import Data.Vector hiding (modify)
 import qualified Data.List as DL
 import qualified Meinesweeper.Field as MF
-import Graphics.UI.WX (Panel, Frame, Button)
-import System.Random
-import Data.Tuple
 
 type Board = Vector (Vector MF.Field)
 type GameBoard = State Board
 type Height = Int
 type Width = Int
-type Seed = Float
 
 instance Show Board where
     show :: Board -> String
@@ -37,24 +35,23 @@ instance Show Board where
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
 -- create an initial board
--- createBoard :: Height -> Width -> Board -- Seed -> Height -> Width -> Board
 createBoard :: Height -> Width -> Int -> StdGen -> Board
-createBoard h w m g = insertMines xCoords yCoords $ createEmptyBoard h w
+createBoard h w mcount prng = insertMines xCoords yCoords $ createEmptyBoard h w
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
-          xCoords = DL.take m $ randomRs (0, w) (fst $ split g)
-          yCoords = DL.take m $ randomRs (0, h) (snd $ split g)
+          xCoords = DL.take mcount $ randomRs (0, w) (fst $ split prng)
+          yCoords = DL.take mcount $ randomRs (0, h) (snd $ split prng)
 
 insertMines :: [Int] -> [Int] -> Board -> Board
-insertMines xs ys board = go inserter (DL.zip xs ys) board
+insertMines xs ys = go inserter (DL.zip xs ys)
    where go action [] board = board
-         go action (x:xs) board = go action xs (action (fst x) (snd x) board)
+         go action (x:xs) board = go action xs (uncurry action x board)
          inserter x y = over (element x . element y . MF.mined) (const True)
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding bombs
 -- Or -1 if the elem is itself a bomb
-adjacency :: GameBoard [[Int]]
-adjacency = do
+computeAdjacencyMatrix :: GameBoard [[Int]]
+computeAdjacencyMatrix = do
     board <- get
     let numBoard = numberfiedBoard board
     let zipped = countBombs numBoard
