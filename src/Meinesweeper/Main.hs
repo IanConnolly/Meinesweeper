@@ -9,19 +9,19 @@ import Graphics.UI.WX
 import qualified Data.Vector as DV
 
 --Easy height width and mines
-easyH = 8 :: Int
-easyW = 8 :: Int
-easyM = 10 :: Int
+easyH = 8
+easyW = 8
+easyM = 10
 
 --Medium height width and mines
-mediumH = 15 :: Int
-mediumW = 15 :: Int
-mediumM = 40 :: Int
+mediumH = 15
+mediumW = 15
+mediumM = 40
 
 --Hard height width and mines
-hardH = 15 :: Int
-hardW = 29 :: Int
-hardM = 99 :: Int
+hardH = 15
+hardW = 29
+hardM = 99
 
 newBoard :: String -> Int -> Int -> Int -> IO ()
 newBoard title h w m = do
