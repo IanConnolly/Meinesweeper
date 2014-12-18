@@ -11,8 +11,8 @@ module Meinesweeper.Board (GameBoard,
                            uncoverAll,
                            showBoard) where
 
-import Prelude (Bool(..), Int(..), Float(..), Num(..), Show(..), String(..),
-                const, fst, (==), not, ($), (.), IO, mod, div) 
+import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
+                const, (==), not, ($), (.)) 
 import Control.Lens
 import Control.Monad.State
 import System.Random
