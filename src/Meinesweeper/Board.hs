@@ -1,15 +1,6 @@
-module Meinesweeper.Board (GameBoard,
-                           Board,
-                           createBoard,
-                           isMined,
-                           isCovered,
-                           isFlagged,
-                           isWon,
-                           flag,
-                           unflag,
-                           uncover,
-                           uncoverAll,
-                           showBoard) where
+module Meinesweeper.Board (GameBoard, Board, showBoard, isFlagged, isCovered,
+                           isMined, isWon, flag, unflag, uncover, uncoverAll,
+                           createBoard) where
 
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
                 const, (==), not, ($), (.)) 
