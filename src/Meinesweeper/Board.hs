@@ -27,8 +27,8 @@ instance Show Board where
 createBoard :: Height -> Width -> Int -> StdGen -> Board
 createBoard h w mcount prng = insertMines points $ createEmptyBoard h w
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
-          xCoords = randomRs (0, w) (fst $ split prng)
-          yCoords = randomRs (0, h) (snd $ split prng)
+          xCoords = randomRs (0, w-1) (fst $ split prng)
+          yCoords = randomRs (0, h-1) (snd $ split prng)
           points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
 
 insertMines :: [(Int,Int)] -> Board -> Board
