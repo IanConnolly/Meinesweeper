@@ -31,11 +31,10 @@ createBoard h w mcount prng = insertMines points $ createEmptyBoard h w
           yCoords = randomRs (0, h-1) (snd $ split prng)
           points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
 
-insertMines :: [(Int,Int)] -> Board -> Board
-insertMines = go inserter
-   where go action [] board = board
-         go action (x:xs) board = go action xs (uncurry action x board)
-         inserter x y = over (element x . element y . MF.mined) (const True)
+insertMines :: [(Int, Int)] -> Board -> Board
+insertMines [] board = board
+insertMines (x:xs) board = insertMines xs (inserter x board)
+   where inserter (x, y) = over (element x . element y . MF.mined) (const True)
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding bombs
