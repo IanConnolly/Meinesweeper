@@ -34,7 +34,7 @@ createBoard h w mcount prng = insertMines points $ createEmptyBoard h w
 insertMines :: [(Int, Int)] -> Board -> Board
 insertMines [] board = board
 insertMines (x:xs) board = insertMines xs (inserter x board)
-   where inserter (x, y) = over (element x . element y . MF.mined) (const True)
+    where inserter (x, y) = over (element x . element y . MF.mined) (const True)
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding bombs
