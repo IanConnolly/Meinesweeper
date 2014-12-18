@@ -25,13 +25,14 @@ instance Show Board where
 
 -- create an initial board
 createBoard :: Height -> Width -> Int -> StdGen -> Board
-createBoard h w mcount prng = insertMines xCoords yCoords $ createEmptyBoard h w
+createBoard h w mcount prng = insertMines points $ createEmptyBoard h w
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
-          xCoords = DL.take mcount $ randomRs (0, w) (fst $ split prng)
-          yCoords = DL.take mcount $ randomRs (0, h) (snd $ split prng)
+          xCoords = randomRs (0, w) (fst $ split prng)
+          yCoords = randomRs (0, h) (snd $ split prng)
+          points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
 
-insertMines :: [Int] -> [Int] -> Board -> Board
-insertMines xs ys = go inserter (DL.zip xs ys)
+insertMines :: [(Int,Int)] -> Board -> Board
+insertMines = go inserter
    where go action [] board = board
          go action (x:xs) board = go action xs (uncurry action x board)
          inserter x y = over (element x . element y . MF.mined) (const True)
