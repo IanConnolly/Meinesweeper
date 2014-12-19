@@ -48,12 +48,12 @@ insertMines (x:xs) board = insertMines xs (inserter x board)
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding Mines
--- Or -1 if the elem is itself a bomb
+-- Or -1 if the elem is itself a mines
 computeAdjacencyMatrix :: Board -> [[Int]]
 computeAdjacencyMatrix = countMines . numberfiedBoard
     where
-        numberfiedBoard = toList . map (toList . map (bombToNum . fromJust . preview MF.mined))
-        bombToNum a = if a then 1 else 0
+        numberfiedBoard = toList . map (toList . map (minesToNum . fromJust . preview MF.mined))
+        minesToNum a = if a then 1 else 0
         countMines = reduceZip . DL.map mapZip
         -- combine surrounding numbers
         -- ie. [1,2,3] -> [3,6,5]
