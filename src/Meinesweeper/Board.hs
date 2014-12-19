@@ -23,11 +23,25 @@ instance Show Board where
 
 -- create an initial board
 createBoard :: Height -> Width -> Int -> StdGen -> Board
-createBoard h w mcount prng = insertMines points $ createEmptyBoard h w
+createBoard h w mcount prng = 
+    let b = insertMines points $ createEmptyBoard h w
+    in addAdjacent b (computeAdjacencyMatrix b)                              
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
+          points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
           xCoords = randomRs (0, w-1) (fst $ split prng)
           yCoords = randomRs (0, h-1) (snd $ split prng)
-          points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
+
+group :: Int -> [a] -> [[a]]
+group n [] = []
+group n l = first : group n rest
+      where (first, rest) = DL.splitAt n l
+
+addAdjacent :: Board -> [[Int]] -> Board
+addAdjacent b adjs = boardify $ addNums union
+    where boardify = map fromList . fromList . group (length $ b ! 0)
+          addNums = DL.map addNum
+          addNum (cell, num) = set MF.adjacentMines num $ cell
+          union = DL.zip (DL.concat $ DL.map toList $ toList b) (DL.concat adjs)
 
 insertMines :: [(Int, Int)] -> Board -> Board
 insertMines [] board = board
