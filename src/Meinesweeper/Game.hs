@@ -38,7 +38,7 @@ rightClickField :: Int -> Int -> Game Bool
 rightClickField x y = do
     game <- get
     f <- isFlagged x y
-    if f then do
+    if f then
         if (game ^. flagsLeft) == 0 then 
             return False
         else do      
