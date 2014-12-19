@@ -20,25 +20,35 @@ makeLenses ''Meinesweeper
 
 type Game = State Meinesweeper
 
-leftClickField :: Int -> Int -> Game ()
+leftClickField :: Int -> Int -> Game Bool
 leftClickField x y = do
     c <- isCovered x y
-    when c $ do
+    if c then do
         m <- isMined x y
-        if m
-            then uncoverAll
-            else uncover x y
-
-rightClickField :: Int -> Int -> Game ()
-rightClickField x y = do
-    f <- isFlagged x y
-    if f
-        then do
-            flag x y
-            flagsLeft -= 1
+        if m then do
+            uncoverAll
+            return False
         else do
-            unflag x y
-            flagsLeft += 1
+            uncover x y
+            return True
+    else
+        return True
+
+rightClickField :: Int -> Int -> Game Bool
+rightClickField x y = do
+    game <- get
+    f <- isFlagged x y
+    if f then do
+        if (game ^. flagsLeft) == 0 then 
+            return False
+        else do      
+            flag x y 
+            flagsLeft -= 1
+            return True
+    else do
+        unflag x y
+        flagsLeft += 1
+        return True
 
 -- check a board for the win condition
 isWon :: Game Bool
