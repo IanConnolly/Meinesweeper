@@ -56,10 +56,10 @@ isWon = do
     game <- get
     let b = fromJust $ preview board game
     let fboard = concat $ toList b
-    return $ uncovered fboard == bombs fboard
+    return $ uncovered fboard == mines fboard
     where
         uncovered = length . filter (not . fromJust . preview MF.covered)
-        bombs = length . filter (fromJust . preview MF.mined)
+        mines = length . filter (fromJust . preview MF.mined)
 
 isMined :: Int -> Int -> Game Bool
 isMined x y = viewSquare x y MF.covered
