@@ -60,6 +60,9 @@ isCovered x y = viewSquare x y MF.covered
 isFlagged :: Int -> Int -> Game Bool
 isFlagged x y = viewSquare x y MF.flagged
 
+adjacentMines :: Int -> Int -> Game Int
+adjacentMines x y = viewSquare x y MF.adjacentMines
+
 uncover :: Int -> Int -> Game ()
 uncover x y = modifySquare x y MF.covered False
 
