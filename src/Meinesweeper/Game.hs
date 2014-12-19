@@ -77,7 +77,7 @@ uncoverAll = modifyBoard MF.covered False
 
 -- set a record of all the squares in the Board to val
 modifyBoard record val = 
-    modify $ over (board) (map (map (set record val)))
+    modify $ over board (map (map (set record val)))
 
 -- set the record of the square at board[x][y] to val
 modifySquare x y record val = modify $ over (board . element x . element y . record) (const val)

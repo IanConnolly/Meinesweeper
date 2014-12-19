@@ -38,8 +38,8 @@ addAdjacent :: Board -> [[Int]] -> Board
 addAdjacent b adjs = boardify $ addNums union
     where boardify = map fromList . fromList . group (length $ b ! 0)
           addNums = DL.map addNum
-          addNum (cell, num) = set MF.adjacentMines num $ cell
-          union = DL.zip (DL.concat $ DL.map toList $ toList b) (DL.concat adjs)
+          addNum (cell, num) = set MF.adjacentMines num cell
+          union = DL.zip (DL.concatMap toList (toList b)) (DL.concat adjs)
 
 insertMines :: [(Int, Int)] -> Board -> Board
 insertMines [] board = board
@@ -50,7 +50,7 @@ insertMines (x:xs) board = insertMines xs (inserter x board)
 -- Each elem contains the number of surrounding bombs
 -- Or -1 if the elem is itself a bomb
 computeAdjacencyMatrix :: Board -> [[Int]]
-computeAdjacencyMatrix board = countBombs $ numberfiedBoard board
+computeAdjacencyMatrix = countBombs . numberfiedBoard
     where
         numberfiedBoard = toList . map (toList . map (bombToNum . fromJust . preview MF.mined))
         bombToNum a = if a then 1 else 0
