@@ -14,7 +14,7 @@ instance Show Field where
     | _flagged f = "|  <|  |"
     | _covered f = "|  []  |"
     | _mined f   = "|  **  |"
-    | otherwise  = "|  " ++ (show $ _adjacentMines f) ++ "  |"
+    | otherwise  = "|  " ++ (show $ _adjacentMines f) ++ "   |"
 
 newField :: Field
 newField = Field { _mined = False
