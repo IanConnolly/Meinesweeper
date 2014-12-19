@@ -1,7 +1,7 @@
 module Meinesweeper.Board where
 
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
-                const, (==), not, ($), (.)) 
+                const, (==), not, ($), (.))
 import Control.Lens
 import System.Random
 import Data.Tuple
@@ -16,14 +16,14 @@ type Width = Int
 
 instance Show Board where
     show :: Board -> String
-    show b = shower $ toList $ map toList b
+    show = shower . toList . map toList
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
 -- create an initial board
 createBoard :: Height -> Width -> Int -> StdGen -> Board
-createBoard h w mcount prng = 
+createBoard h w mcount prng =
     let b = insertMines points $ createEmptyBoard h w
-    in addAdjacent b (computeAdjacencyMatrix b)                              
+    in addAdjacent b (computeAdjacencyMatrix b)
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
           points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
           xCoords = randomRs (0, w-1) (fst $ split prng)

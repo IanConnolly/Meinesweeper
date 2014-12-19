@@ -4,12 +4,13 @@ module Meinesweeper.Game where
 import Meinesweeper.Board
 import qualified Meinesweeper.Field as MF
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
-                const, (==), not, ($), (.)) 
+                const, (==), not, ($), (.))
 import Control.Monad
 import Control.Monad.State
 import Control.Lens
 import Data.Vector hiding (modify)
 import Data.Maybe
+import System.Random
 
 data Meinesweeper = Meinesweeper
     { _flagsLeft :: Int
@@ -19,6 +20,12 @@ data Meinesweeper = Meinesweeper
 makeLenses ''Meinesweeper
 
 type Game = State Meinesweeper
+
+newMeinesweeper :: Int -> Int -> Int -> StdGen -> Meinesweeper
+newMeinesweeper h w m g =
+  Meinesweeper { _flagsLeft = m
+               , _board = createBoard h w m g
+               }
 
 leftClickField :: Int -> Int -> Game Bool
 leftClickField x y = do
@@ -39,10 +46,10 @@ rightClickField x y = do
     game <- get
     f <- isFlagged x y
     if f then
-        if (game ^. flagsLeft) == 0 then 
+        if (game ^. flagsLeft) == 0 then
             return False
-        else do      
-            flag x y 
+        else do
+            flag x y
             flagsLeft -= 1
             return True
     else do
@@ -86,7 +93,7 @@ uncoverAll :: Game ()
 uncoverAll = modifyBoard MF.covered False
 
 -- set a record of all the squares in the Board to val
-modifyBoard record val = 
+modifyBoard record val =
     modify $ over board (map (map (set record val)))
 
 -- set the record of the square at board[x][y] to val
@@ -96,4 +103,3 @@ modifySquare x y record val = modify $ over (board . element x . element y . rec
 viewSquare x y record = do
     g <- get
     return $ fromJust $ preview (board . element x . element y . record) g
-
