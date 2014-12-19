@@ -1,6 +1,4 @@
-module Meinesweeper.Board (GameBoard, Board, showBoard, isFlagged, isCovered,
-                           isMined, isWon, flag, unflag, uncover, uncoverAll,
-                           createBoard) where
+module Meinesweeper.Board where
 
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
                 const, (==), not, ($), (.)) 
@@ -39,13 +37,11 @@ insertMines (x:xs) board = insertMines xs (inserter x board)
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding bombs
 -- Or -1 if the elem is itself a bomb
-computeAdjacencyMatrix :: GameBoard [[Int]]
-computeAdjacencyMatrix = do
-    board <- get
-    let numBoard = numberfiedBoard board
-    let zipped = countBombs numBoard
-    return $ removeBombSquares zipped numBoard
+computeAdjacencyMatrix :: Board -> [[Int]]
+computeAdjacencyMatrix board = removeBombSquares zipped numBoard
     where
+        numBoard = numberfiedBoard board
+        zipped = countBombs numBoard
         numberfiedBoard = toList . map (toList . map (bombToNum . fromJust . preview MF.mined))
         bombToNum a = if a then 1 else 0
         countBombs = reduceZip . DL.map mapZip
@@ -63,52 +59,3 @@ computeAdjacencyMatrix = do
         -- compare each new cell with its original, and change new cell to -1 if a bomb was there
         removeBombSquares = DL.zipWith (DL.zipWith removeMine)
         new `removeMine` orig = if orig == 0 then new else -1
-
--- check a board for the win condition
-isWon :: GameBoard Bool
-isWon = do
-    board <- get
-    let fboard = concat $ toList board
-    return $ uncovered fboard == bombs fboard
-    where
-        uncovered = length . filter (not . fromJust . preview MF.covered)
-        bombs = length . filter (fromJust . preview MF.mined)
-
-isMined :: Int -> Int -> GameBoard Bool
-isMined x y = viewSquare x y MF.covered
-
-isCovered :: Int -> Int -> GameBoard Bool
-isCovered x y = viewSquare x y MF.covered
-
-isFlagged :: Int -> Int -> GameBoard Bool
-isFlagged x y = viewSquare x y MF.flagged
-
-uncover :: Int -> Int -> GameBoard ()
-uncover x y = modifySquare x y MF.covered False
-
-flag :: Int -> Int -> GameBoard ()
-flag x y = modifySquare x y MF.flagged True
-
-unflag :: Int -> Int -> GameBoard ()
-unflag x y = modifySquare x y MF.flagged False
-
-uncoverAll :: GameBoard ()
-uncoverAll = modifyBoard MF.covered False
-
-getBoard :: GameBoard String
-getBoard = do
-    board <- get
-    return $ show board
-
-showBoard = evalState getBoard
-
--- set a record of all the squares in the Board to val
-modifyBoard record val = modify $ map (map (set record val))
-
--- set the record of the square at board[x][y] to val
-modifySquare x y record val = modify $ over (element x . element y . record) (const val)
-
--- view the value of the record of the square at board[x][y]
-viewSquare x y record = do
-    g <- get
-    return $ fromJust $ preview (element x . element y . record) g
