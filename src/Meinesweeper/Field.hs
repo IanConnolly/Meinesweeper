@@ -11,10 +11,10 @@ data Field = Field { _mined :: Bool
 instance Show Field where
   show :: Field -> String
   show f
-    | _flagged f = "|  <|  |"
-    | _covered f = "|  []  |"
-    | _mined f   = "|  **  |"
-    | otherwise  = "|  " ++ show (_adjacentMines f) ++ "   |"
+    | _flagged f = "| F |"
+    | _covered f = "|   |"
+    | _mined f   = "| * |"
+    | otherwise  = "| " ++ show (_adjacentMines f) ++ " |"
 
 newField :: Field
 newField = Field { _mined = False
