@@ -3,7 +3,6 @@ module Meinesweeper.Board where
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
                 const, (==), not, ($), (.)) 
 import Control.Lens
-import Control.Monad.State
 import System.Random
 import Data.Tuple
 import Data.Maybe
@@ -12,7 +11,6 @@ import qualified Data.List as DL
 import qualified Meinesweeper.Field as MF
 
 type Board = Vector (Vector MF.Field)
-type GameBoard = State Board
 type Height = Int
 type Width = Int
 
@@ -52,10 +50,8 @@ insertMines (x:xs) board = insertMines xs (inserter x board)
 -- Each elem contains the number of surrounding bombs
 -- Or -1 if the elem is itself a bomb
 computeAdjacencyMatrix :: Board -> [[Int]]
-computeAdjacencyMatrix board = removeBombSquares zipped numBoard
+computeAdjacencyMatrix board = countBombs $ numberfiedBoard board
     where
-        numBoard = numberfiedBoard board
-        zipped = countBombs numBoard
         numberfiedBoard = toList . map (toList . map (bombToNum . fromJust . preview MF.mined))
         bombToNum a = if a then 1 else 0
         countBombs = reduceZip . DL.map mapZip
@@ -70,6 +66,3 @@ computeAdjacencyMatrix board = removeBombSquares zipped numBoard
         -- f is combiner, z is padding element
         zipper f z xs = DL.zipWith3 f (z:xs) xs (DL.tail xs DL.++ [z])
         add3 x y z = x + y + z -- convenience
-        -- compare each new cell with its original, and change new cell to -1 if a bomb was there
-        removeBombSquares = DL.zipWith (DL.zipWith removeMine)
-        new `removeMine` orig = if orig == 0 then new else -1
