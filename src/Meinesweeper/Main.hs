@@ -27,7 +27,6 @@ hardM = 99
 newBoard :: String -> Int -> Int -> Int -> IO ()
 newBoard title h w m = do
   f <- frameFixed [text := title]
-
   g <- newStdGen
   gameState <- varCreate $ newMeinesweeper h w m g
   makeGUI gameState f h
@@ -58,17 +57,18 @@ mainMenu = do
 
 fieldButton :: Int -> Frame () -> Var Meinesweeper -> Field -> IO (Button ())
 fieldButton h f gameState field
-  | _flagged field = makeButton h f gameState "<|"
-  | _covered field = makeButton h f gameState "  "
-  | _mined field   = makeButton h f gameState "**"
-  | otherwise      = makeButton h f gameState (show $ _adjacentMines field)
+  | _flagged field = makeButton h f gameState fId "F"
+  | _covered field = makeButton h f gameState fId " "
+  | _mined field   = makeButton h f gameState fId "*"
+  | otherwise      = makeButton h f gameState fId (show $ _adjacentMines field)
   where
-   makeButton h f g txt = do
+   fId = _fId field
+   makeButton h f g i txt = do
      game <- varGet g
      smallButton f [text := txt
                    ,on click := \p -> let (x,y) = getPoint p
                                           (win,state) = runState (leftClickField x y) game
-                                      in varSet g state >> putStrLn (show x ++ " " ++ show y) ]{-->> makeGUI g f h]--}
+                                      in varSet g state >> putStrLn (show (div i h) ++ " " ++ show (mod i h)) ]{-->> makeGUI g f h]--}
    getPoint p = (pointX p, pointY p)
 
 boardGUI :: Board -> Int -> Frame () -> Var Meinesweeper -> IO [[Button ()]]

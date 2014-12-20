@@ -22,15 +22,25 @@ instance Show Board where
 -- create an initial board
 createBoard :: Height -> Width -> Int -> StdGen -> Board
 createBoard h w mcount prng =
-    let b = insertMines points $ createEmptyBoard h w
+    let b = addFieldId $ insertMines points $ createEmptyBoard h w
     in addAdjacent b (computeAdjacencyMatrix b)
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
           points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
           xCoords = randomRs (0, w-1) (fst $ split prng)
           yCoords = randomRs (0, h-1) (snd $ split prng)
 
+addFieldId :: Board -> Board
+addFieldId b = boardify $ addIds union
+    where rowLength = length $ b ! 0
+          colLength = length b
+          boardify = map fromList . fromList . group rowLength
+          ids = [0..(rowLength * colLength)]
+          addIds = DL.map addId
+          addId (cell, num) = set MF.fId num cell
+          union = DL.zip (DL.concatMap toList (toList b)) ids
+
 group :: Int -> [a] -> [[a]]
-group n [] = []
+group _ [] = []
 group n l = first : group n rest
       where (first, rest) = DL.splitAt n l
 
