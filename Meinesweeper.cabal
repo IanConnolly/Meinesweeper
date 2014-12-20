@@ -10,7 +10,7 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-executable Meinesweeper
+executable meinesweeper
   main-is:             Meinesweeper/Main.hs
   -- other-modules:
   default-extensions:  OverlappingInstances, TypeSynonymInstances, FlexibleInstances, InstanceSigs

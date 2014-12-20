@@ -4,13 +4,14 @@ module Meinesweeper.Game where
 import Meinesweeper.Board
 import qualified Meinesweeper.Field as MF
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
-                const, (==), not, ($), (.))
+                const, (==), not, ($), (.), unlines)
 import Control.Monad
 import Control.Monad.State
 import Control.Lens
 import Data.Vector hiding (modify)
 import Data.Maybe
 import System.Random
+import qualified Data.List as DL
 
 data Meinesweeper = Meinesweeper
     { _flagsLeft :: Int
@@ -19,6 +20,10 @@ data Meinesweeper = Meinesweeper
 
 makeLenses ''Meinesweeper
 
+instance Show Meinesweeper where
+    show b = unlines $ [show $ b ^. board,
+                        "Flags: " DL.++ (show (b ^. flagsLeft))]
+ 
 type Game = State Meinesweeper
 
 newMeinesweeper :: Int -> Int -> Int -> StdGen -> Meinesweeper
