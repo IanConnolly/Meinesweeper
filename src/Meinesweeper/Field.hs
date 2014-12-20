@@ -10,7 +10,6 @@ data Field = Field { _mined :: Bool
                    }
 
 instance Show Field where
-  show :: Field -> String
   show f
     | _flagged f = "| F |"
     | _covered f = "|   |"
