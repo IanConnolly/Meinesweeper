@@ -63,14 +63,15 @@ rightClickField x y = do
         return True
 
 -- check a board for the win condition
+-- Win condition: The amount of covered fields remaining == num of mines
 isWon :: Game Bool
 isWon = do
     game <- get
     let b = fromJust $ preview board game
     let fboard = concat $ toList b
-    return $ uncovered fboard == mines fboard
+    return $ covered fboard == mines fboard
     where
-        uncovered = length . filter (not . fromJust . preview MF.covered)
+        covered = length . filter (fromJust . preview MF.covered)
         mines = length . filter (fromJust . preview MF.mined)
 
 isMined :: Int -> Int -> Game Bool
