@@ -54,12 +54,12 @@ rightClickField x y = do
         if (game ^. flagsLeft) == 0 then
             return False
         else do
-            flag x y
-            flagsLeft -= 1
+            unflag x y
+            flagsLeft += 1
             return True
     else do
-        unflag x y
-        flagsLeft += 1
+        flag x y
+        flagsLeft -= 1
         return True
 
 -- check a board for the win condition
