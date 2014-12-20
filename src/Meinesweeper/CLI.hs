@@ -63,7 +63,7 @@ difficultyPrompt :: IO Difficulty
 difficultyPrompt = do
     putStrLn $ unlines ["1) Easy", "2) Medium", "3) Hard"]
     input <- prompt "Enter difficulty: "
-    return $ toEnum $ digitToInt $ input !! 0
+    return $ toEnum $ (digitToInt $ input !! 0) - 1
 
 
 inputPrompt :: IO [String]
