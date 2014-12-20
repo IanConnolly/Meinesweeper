@@ -1,4 +1,4 @@
-module Meinesweeper.CLI where
+module Meinesweeper.CLI (startCLILoop) where
 
 import Meinesweeper.Game
 import Meinesweeper.Board
