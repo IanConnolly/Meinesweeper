@@ -47,9 +47,7 @@ gameLoop state = do
         otherwise -> do 
             let x = digitToInt $ (inputs !! 0) !! 0
             let y = digitToInt $ (inputs !! 1) !! 0
-            putStrLn $ "Clicking: " ++ show x ++ " " ++ show y
             let (res, newstate) = runState (leftClickField x y) state
-            putStrLn $ show res
             if res then do
                 let won = evalState isWon newstate
                 if won then

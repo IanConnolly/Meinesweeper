@@ -74,7 +74,7 @@ isWon = do
         mines = length . filter (fromJust . preview MF.mined)
 
 isMined :: Int -> Int -> Game Bool
-isMined x y = viewSquare x y MF.covered
+isMined x y = viewSquare x y MF.mined
 
 isCovered :: Int -> Int -> Game Bool
 isCovered x y = viewSquare x y MF.covered
