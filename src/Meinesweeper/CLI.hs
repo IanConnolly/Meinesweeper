@@ -21,8 +21,8 @@ data Difficulty = Easy | Medium | Hard deriving (Enum, Show)
 initGame :: IO ()
 initGame = do
     difficulty <- difficultyPrompt
-    pnrg <- newStdGen
-    let game = newGame difficulty pnrg
+    prng <- newStdGen
+    let game = newGame difficulty prng
     won <- gameLoop game
     if won then 
         putStrLn winMessage
