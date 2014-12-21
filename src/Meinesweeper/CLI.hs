@@ -39,8 +39,8 @@ gameLoop state = do
     inputs <- inputPrompt
     case head inputs of
         "f" -> do
-            let x = digitToInt $ (inputs !! 1) !! 0
-            let y = digitToInt $ (inputs !! 2) !! 0
+            let x = digitToInt $ head $ inputs !! 1
+            let y = digitToInt $ head $ inputs !! 2
             let (res, newstate) = runState (rightClickField x y) state
             if res then
                 gameLoop newstate
@@ -48,8 +48,8 @@ gameLoop state = do
                 putStrLn outOfFlags
                 gameLoop newstate
         otherwise -> do 
-            let x = digitToInt $ (inputs !! 0) !! 0
-            let y = digitToInt $ (inputs !! 1) !! 0
+            let x = digitToInt $ head $ inputs !! 0
+            let y = digitToInt $ head $ inputs !! 1
             let (res, newstate) = runState (leftClickField x y) state
             if res then do
                 let won = evalState isWon newstate
@@ -66,7 +66,7 @@ difficultyPrompt :: IO Difficulty
 difficultyPrompt = do
     putStrLn $ unlines ["1) Easy", "2) Medium", "3) Hard"]
     input <- prompt "Enter difficulty: "
-    return $ toEnum $ (digitToInt $ input !! 0) - 1
+    return $ toEnum $ digitToInt (head input) - 1
 
 
 inputPrompt :: IO [String]
@@ -90,4 +90,4 @@ prompt p = do
     hFlush stdout -- else the putStr will be buffered & not output til later
     s <- getLine
     putStr "\n"
-    return $ s
+    return s

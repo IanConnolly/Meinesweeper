@@ -22,8 +22,8 @@ data Meinesweeper = Meinesweeper
 makeLenses ''Meinesweeper
 
 instance Show Meinesweeper where
-    show b = unlines $ [show $ b ^. board,
-                        "Flags: " DL.++ (show (b ^. flagsLeft))]
+    show b = unlines [show $ b ^. board,
+                      "Flags: " DL.++ show (b ^. flagsLeft)]
  
 type Game = State Meinesweeper
 
