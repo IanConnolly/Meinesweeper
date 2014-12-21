@@ -1,4 +1,4 @@
-module Meinesweeper.Board (Board(..), createBoard) where
+module Meinesweeper.Board (Board(..), createBoard, computeAdjacencyMatrix) where
 
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
                 const, (==), not, ($), (.))
