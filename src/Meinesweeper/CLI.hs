@@ -10,13 +10,15 @@ import System.IO
 import Control.Monad.State
 import Data.Char
 
-
+startCLILoop :: IO () -- entry point for export
 startCLILoop = initGame
+
 winMessage = "You won!"
 loseMessage = "You lost!"
 outOfFlags = "You're out of flags :("
 
-data Difficulty = Easy | Medium | Hard deriving (Enum, Show)
+data Difficulty = Easy | Medium | Hard 
+    deriving (Enum, Show) -- helper type for nice newGame pattern matching
 
 initGame :: IO ()
 initGame = do
@@ -29,8 +31,9 @@ initGame = do
     else 
         putStrLn loseMessage
 
-
-gameLoop :: Meinesweeper -> IO Bool -- TODO, transform this malarky
+-- Main game interaction loop
+-- returns True if won, False if lost
+gameLoop :: Meinesweeper -> IO Bool
 gameLoop state = do
     print state
     inputs <- inputPrompt
@@ -74,6 +77,7 @@ inputPrompt = do
     inp <- prompt "> "
     return $ words inp
 
+-- dispatch correct args to newMeinesweeper
 newGame :: Difficulty -> StdGen -> Meinesweeper
 newGame Easy g = newMeinesweeper easyH easyW easyM g
 newGame Medium g = newMeinesweeper mediumH mediumW mediumM g

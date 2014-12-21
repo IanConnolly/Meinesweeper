@@ -1,4 +1,4 @@
-module Meinesweeper.Board where
+module Meinesweeper.Board (Board(..), createBoard) where
 
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
                 const, (==), not, ($), (.))
@@ -18,16 +18,20 @@ instance Show Board where
     show b = shower $ toList $ map toList b
         where shower = DL.foldr (\ b -> (DL.++) (DL.concatMap show b DL.++ "\n")) ""
 
--- create an initial board
+-- create an initial board of dimensions Height and Width
+-- mcount :: Int = # of mines
+-- prng :: StgGen = random number generator 
 createBoard :: Height -> Width -> Int -> StdGen -> Board
 createBoard h w mcount prng =
     let b = addFieldId $ insertMines points $ createEmptyBoard h w
     in addAdjacent b (computeAdjacencyMatrix b)
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
-          points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords
+          points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords -- :: [(Int, Int)]
           xCoords = randomRs (0, w-1) (fst $ split prng)
           yCoords = randomRs (0, h-1) (snd $ split prng)
 
+-- Gives each elem an ID
+-- ID increments left-to-right, top-to-bottom
 addFieldId :: Board -> Board
 addFieldId b = boardify $ addIds union
     where rowLength = length $ b ! 0
@@ -38,11 +42,17 @@ addFieldId b = boardify $ addIds union
           addId (cell, num) = set MF.fId num cell
           union = DL.zip (DL.concatMap toList (toList b)) ids
 
+-- Turns list into list of list, by grouping every n elems in original
 group :: Int -> [a] -> [[a]]
 group _ [] = []
 group n l = first : group n rest
       where (first, rest) = DL.splitAt n l
 
+
+-- Takes a Board, and a 2D list of numbers and for each elem
+-- in the list of numbers, inserts value of that elem
+-- as the value for Field.adjacentMines in the corresponding
+-- elem in the Board
 addAdjacent :: Board -> [[Int]] -> Board
 addAdjacent b adjs = boardify $ addNums union
     where boardify = map fromList . fromList . group (length $ b ! 0)
@@ -50,6 +60,8 @@ addAdjacent b adjs = boardify $ addNums union
           addNum (cell, num) = set MF.adjacentMines num cell
           union = DL.zip (DL.concatMap toList (toList b)) (DL.concat adjs)
 
+-- Takes a list of points and a board and returns a board with mines
+-- inserted at those points
 insertMines :: [(Int, Int)] -> Board -> Board
 insertMines [] board = board
 insertMines (x:xs) board = insertMines xs (inserter x board)

@@ -8,9 +8,9 @@ import Control.Monad.State
 import System.Random
 import Graphics.UI.WX
 import qualified Data.Vector as DV
-import System.IO
 
-startGraphicsLoop = start mainMenu
+startGraphicsLoop :: IO () -- entry point for export
+startGraphicsLoop = start mainMenu 
 
 newBoard :: String -> Int -> Int -> Int -> IO ()
 newBoard title h w m = do
