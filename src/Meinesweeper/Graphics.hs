@@ -71,9 +71,11 @@ makeGUI gameState h w m = do
   boardButtons <- boardGUI board f h w m gameState
   let gui = widgetise h boardButtons
 
+  solver <- button f [text := "Solve"]
+
   quit <- button f [text := "Quit"
                    ,on command := close f]
   back <- button f [text := "New Game"
                    ,on command := (close f >> mainMenu)]
 
-  set f [layout := minsize (sz 200 100) $ margin 10 $ column 0 $ gui ++ [floatBottom $ widget back, floatBottom $ widget quit]]
+  set f [layout := minsize (sz 200 100) $ margin 5 $ column 5 $ [floatTop $ widget solver] ++ gui ++ [margin 5 $ column 5 [floatBottom $ widget back, floatBottom $ widget quit]]]
