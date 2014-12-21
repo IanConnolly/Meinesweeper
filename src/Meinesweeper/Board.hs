@@ -20,27 +20,31 @@ instance Show Board where
 
 -- create an initial board of dimensions Height and Width
 -- mcount :: Int = # of mines
--- prng :: StgGen = random number generator 
+-- prng :: StgGen = random number generator
 createBoard :: Height -> Width -> Int -> StdGen -> Board
 createBoard h w mcount prng =
-    let b = addFieldId $ insertMines points $ createEmptyBoard h w
+    let b = addCoordinates $ insertMines points $ createEmptyBoard h w
     in addAdjacent b (computeAdjacencyMatrix b)
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
           points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords -- :: [(Int, Int)]
           xCoords = randomRs (0, w-1) (fst $ split prng)
           yCoords = randomRs (0, h-1) (snd $ split prng)
 
--- Gives each elem an ID
--- ID increments left-to-right, top-to-bottom
-addFieldId :: Board -> Board
-addFieldId b = boardify $ addIds union
-    where rowLength = length $ b ! 0
+addCoordinates:: Board -> Board
+addCoordinates b = boardify $ addIds union
+    where rowLength = length (b ! 0)
           colLength = length b
           boardify = map fromList . fromList . group rowLength
-          ids = [0..(rowLength * colLength)]
+
+          points [] _ = []
+          points (x:xs) ys = createXs x ys DL.++ points xs ys
+
+          createXs _ [] = []
+          createXs x (y:ys) = (x,y) : createXs x ys
+
           addIds = DL.map addId
-          addId (cell, num) = set MF.fId num cell
-          union = DL.zip (DL.concatMap toList (toList b)) ids
+          addId (cell, num) = set MF.xy num cell
+          union = DL.zip (DL.concatMap toList (toList b)) (points [0..rowLength] [0..colLength])
 
 -- Turns list into list of list, by grouping every n elems in original
 group :: Int -> [a] -> [[a]]

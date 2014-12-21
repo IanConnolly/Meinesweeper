@@ -12,12 +12,11 @@ import qualified Data.Vector as DV
 startGraphicsLoop :: IO () -- entry point for export
 startGraphicsLoop = start mainMenu 
 
-newBoard :: String -> Int -> Int -> Int -> IO ()
-newBoard title h w m = do
-  f <- frameFixed [text := title]
+newBoard :: Int -> Int -> Int -> IO ()
+newBoard h w m = do
   g <- newStdGen
-  gameState <- varCreate $ newMeinesweeper h w m g
-  makeGUI gameState f h
+  let gameState = newMeinesweeper h w m g
+  makeGUI gameState h
 
 mainMenu :: IO ()
 mainMenu = do
@@ -28,11 +27,11 @@ mainMenu = do
   quit <- button f [ text := "Quit"
                    , on command := close f]
   easy <- button f [ text := "Easy"
-                   , on command := (close f >> newBoard "Easy" easyH easyW easyM) ]
+                   , on command := (close f >> newBoard easyH easyW easyM) ]
   medium <- button f [ text := "Medium"
-                     , on command := (close f >> newBoard "Medium" mediumH mediumW mediumM) ]
+                     , on command := (close f >> newBoard mediumH mediumW mediumM) ]
   hard <- button f [ text := "Hard"
-                   , on command := (close f >> newBoard "Hard" hardH hardW hardM) ]
+                   , on command := (close f >> newBoard hardH hardW hardM) ]
 
   --Frame layout
   set f [layout := minsize (sz 200 100) $ column 1
@@ -43,34 +42,30 @@ mainMenu = do
                    ,floatCentre $ widget hard
                    ,floatCentre $ widget quit]]]
 
-fieldButton :: Int -> Frame () -> Var Meinesweeper -> Field -> IO (Button ())
+fieldButton :: Int -> Frame () -> Meinesweeper -> Field -> IO (Button ())
 fieldButton h f gameState field
-  | _flagged field = makeButton h f gameState fId "F"
-  | _covered field = makeButton h f gameState fId " "
-  | _mined field   = makeButton h f gameState fId "*"
-  | otherwise      = makeButton h f gameState fId (show $ _adjacentMines field)
+  | _flagged field = makeButton h f gameState xy "F"
+  | _covered field = makeButton h f gameState xy " "
+  | _mined field   = makeButton h f gameState xy "*"
+  | otherwise      = makeButton h f gameState xy (show $ _adjacentMines field)
   where
-   fId = _fId field
-   makeButton h f g i txt = do
-     game <- varGet g
-     smallButton f [text := txt
-                   ,on click := \p -> let (x,y) = getPoint p
-                                          (win,state) = runState (leftClickField x y) game
-                                      in varSet g state >> putStrLn (show (div i h) ++ " " ++ show (mod i h)) ]{-->> makeGUI g f h]--}
-   getPoint p = (pointX p, pointY p)
+   xy = _xy field
+   makeButton h f game (x,y) txt = smallButton f [text := txt
+                                                 ,on command := let (win,state) = runState (leftClickField x y) game
+                                                                in close f >> makeGUI state h]--putStrLn (show x ++ " " ++ show y) ]{-->> makeGUI g f h]--}
 
-boardGUI :: Board -> Int -> Frame () -> Var Meinesweeper -> IO [[Button ()]]
+boardGUI :: Board -> Int -> Frame () -> Meinesweeper -> IO [[Button ()]]
 boardGUI b h f g = mapM (mapM (fieldButton h f g)) (DV.toList $ DV.map DV.toList b)
 
 widgetise :: Int -> [[Button ()]] -> [Layout]
 widgetise _ [] = []
 widgetise r (b:bs) = row r (map widget b) : widgetise r bs
 
-makeGUI :: Var Meinesweeper -> Frame () -> Int -> IO ()
-makeGUI gameState f h = do
-  game <- varGet gameState
-
-  let board = _board game
+makeGUI :: Meinesweeper -> Int -> IO ()
+makeGUI gameState h = do
+  --game <- varGet gameState
+  f <- frameFixed [text := "Meinesweeper"]
+  let board = _board gameState
   boardButtons <- boardGUI board h f gameState
   let gui = widgetise h boardButtons
 

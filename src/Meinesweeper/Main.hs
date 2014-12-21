@@ -19,12 +19,12 @@ main = do
 
   case length args of
     0 -> startCLILoop
-    1 -> case head args of 
+    1 -> case head args of
             "--gui" -> startGraphicsLoop
             "--cli" -> startCLILoop
             "-h" -> putStrLn usage
             "--help" -> putStrLn usage
-            otherwise -> do 
+            otherwise -> do
                 putStrLn $ "Unknown argument: " ++ show (head args)
                 putStrLn usage
     otherwise -> do

@@ -6,7 +6,7 @@ data Field = Field { _mined :: Bool
                    , _flagged :: Bool
                    , _covered :: Bool
                    , _adjacentMines :: Int
-                   , _fId :: Int
+                   , _xy :: (Int,Int)
                    }
 
 instance Show Field where
@@ -21,7 +21,7 @@ newField = Field { _mined = False
                  , _flagged = False
                  , _covered = True
                  , _adjacentMines = 0
-                 , _fId = -1
+                 , _xy = (-1,-1)
                  }
 
 

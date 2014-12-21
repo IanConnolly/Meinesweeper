@@ -1,16 +1,16 @@
 module Meinesweeper.Constants where
 
 --Easy height width and mines
-easyH = 8 :: Int
-easyW = 8 :: Int
+easyH = 9 :: Int
+easyW = 9 :: Int
 easyM = 10 :: Int
 
 --Medium height width and mines
-mediumH = 15 :: Int
-mediumW = 15 :: Int
+mediumH = 16 :: Int
+mediumW = 16 :: Int
 mediumM = 40 :: Int
 
 --Hard height width and mines
-hardH = 15 :: Int
-hardW = 29 :: Int
+hardH = 16 :: Int
+hardW = 30 :: Int
 hardM = 99 :: Int
