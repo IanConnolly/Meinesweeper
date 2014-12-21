@@ -20,7 +20,6 @@ executable meinesweeper
 
 
 test-suite tests
-  ghc-options: -Wall
   default-extensions:  OverloadedStrings, OverlappingInstances, TypeSynonymInstances, FlexibleInstances
   main-is: Meinesweeper/Tests.hs
   build-depends:       base >=4.7 && <4.8, wx, vector, lens, mtl, cabal-macosx, random, QuickCheck
