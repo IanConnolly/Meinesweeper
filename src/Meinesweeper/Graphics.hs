@@ -10,18 +10,18 @@ import Graphics.UI.WX
 import qualified Data.Vector as DV
 
 startGraphicsLoop :: IO () -- entry point for export
-startGraphicsLoop = start mainMenu 
+startGraphicsLoop = start mainMenu
 
 newBoard :: Int -> Int -> Int -> IO ()
 newBoard h w m = do
   g <- newStdGen
   let gameState = newMeinesweeper h w m g
-  makeGUI gameState h
+  makeGUI gameState h w m
 
 mainMenu :: IO ()
 mainMenu = do
 
-  f <- frameFixed [text := "MineSweeper"]
+  f <- frameFixed [text := "MeineSweeper"]
 
   --Widgets
   quit <- button f [ text := "Quit"
@@ -42,39 +42,38 @@ mainMenu = do
                    ,floatCentre $ widget hard
                    ,floatCentre $ widget quit]]]
 
-fieldButton :: Int -> Frame () -> Meinesweeper -> Field -> IO (Button ())
-fieldButton h f gameState field
-  | _flagged field = makeButton h f gameState xy "F"
-  | _covered field = makeButton h f gameState xy " "
-  | _mined field   = makeButton h f gameState xy "*"
-  | otherwise      = makeButton h f gameState xy (show $ _adjacentMines field)
+fieldButton :: Frame () -> Int -> Int -> Int -> Meinesweeper -> Field -> IO (Button ())
+fieldButton f h w m gameState field
+  | _flagged field = makeButton f h w m gameState xy "F"
+  | _covered field = makeButton f h w m gameState xy "  "
+  | _mined field   = makeButton f h w m gameState xy "_"
+  | otherwise      = makeButton f h w m gameState xy (show $ _adjacentMines field)
   where
    xy = _xy field
-   makeButton h f game (x,y) txt = smallButton f [text := txt
-                                                 ,on command := let (win,state) = runState (leftClickField x y) game
-                                                                in close f >> makeGUI state h]--putStrLn (show x ++ " " ++ show y) ]{-->> makeGUI g f h]--}
+   makeButton f h w m game (x,y) txt = smallButton f [text := txt
+                                                 ,on click := \p -> let (win,state) = runState (leftClickField (x - 1) (y - 1)) game
+                                                                    in close f >> makeGUI state h w m
+                                                 ,on clickRight := \p -> let (win,state) = runState (rightClickField (x - 1) (y - 1)) game
+                                                                         in close f >> makeGUI state h w m]
 
-boardGUI :: Board -> Int -> Frame () -> Meinesweeper -> IO [[Button ()]]
-boardGUI b h f g = mapM (mapM (fieldButton h f g)) (DV.toList $ DV.map DV.toList b)
+boardGUI :: Board -> Frame () -> Int -> Int -> Int -> Meinesweeper -> IO [[Button ()]]
+boardGUI b f h w m g = mapM (mapM (fieldButton f h w m g)) (DV.toList $ DV.map DV.toList b)
 
 widgetise :: Int -> [[Button ()]] -> [Layout]
 widgetise _ [] = []
 widgetise r (b:bs) = row r (map widget b) : widgetise r bs
 
-makeGUI :: Meinesweeper -> Int -> IO ()
-makeGUI gameState h = do
-  --game <- varGet gameState
+makeGUI :: Meinesweeper -> Int -> Int -> Int -> IO ()
+makeGUI gameState h w m = do
   f <- frameFixed [text := "Meinesweeper"]
+
   let board = _board gameState
-  boardButtons <- boardGUI board h f gameState
+  boardButtons <- boardGUI board f h w m gameState
   let gui = widgetise h boardButtons
 
   quit <- button f [text := "Quit"
                    ,on command := close f]
-  back <- button f [text := "Main"
+  back <- button f [text := "New Game"
                    ,on command := (close f >> mainMenu)]
 
-  set f [layout := minsize (sz 200 100) $ margin 10 $ column 0 $ gui ++ [floatBottom $ widget back, floatBottom $ widget quit]
-        ,on click := \p -> let x = pointX p
-                               y = pointY p
-                           in putStrLn (show x ++ " " ++ show y)]
+  set f [layout := minsize (sz 200 100) $ margin 10 $ column 0 $ gui ++ [floatBottom $ widget back, floatBottom $ widget quit]]

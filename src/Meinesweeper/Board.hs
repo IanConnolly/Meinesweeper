@@ -44,7 +44,7 @@ addCoordinates b = boardify $ addIds union
 
           addIds = DL.map addId
           addId (cell, num) = set MF.xy num cell
-          union = DL.zip (DL.concatMap toList (toList b)) (points [0..rowLength] [0..colLength])
+          union = DL.zip (DL.concatMap toList (toList b)) (points [1..colLength] [1..rowLength])
 
 -- Turns list into list of list, by grouping every n elems in original
 group :: Int -> [a] -> [[a]]
