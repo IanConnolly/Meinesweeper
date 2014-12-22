@@ -51,17 +51,17 @@ rightClickField :: Int -> Int -> Game Bool
 rightClickField x y = do
     game <- get
     f <- isFlagged x y
-    if f then
+    if f then do
+        unflag x y
+        flagsLeft += 1
+        return True
+    else
         if (game ^. flagsLeft) == 0 then
             return False
         else do
-            unflag x y
-            flagsLeft += 1
+            flag x y
+            flagsLeft -= 1
             return True
-    else do
-        flag x y
-        flagsLeft -= 1
-        return True
 
 -- check a board for the win condition
 -- Win condition: The amount of covered fields remaining == num of mines
