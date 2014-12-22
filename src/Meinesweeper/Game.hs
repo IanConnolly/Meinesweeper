@@ -112,47 +112,57 @@ viewSquare x y record = do
     return $ fromJust $ preview (board . element x . element y . record) g
 
 
---Simple solver
+-- Simple solver
+-- Algorithm:
+--
+-- Flag criterion:
+-- If an uncovered square has mine-adjacency = num adjacent covered and not flagged + num adjacent flagged {
+--    flag adjacent covered
+-- }
+--
+-- Uncover criterion:
+-- If an uncovered square has mine-adjacency = num adjacent flagged {
+--    uncover all adjacents not flagged
+-- }
+
 type Coord = (Int,Int)
 
-solveFlag :: Int -> Int -> Game ()
-solveFlag x y = do
+solveFlag :: Coord -> Game ()
+solveFlag (x,y) = do
     game <- get
     let b = fromJust $ preview board game
     let adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
-    let flaggedAdjacents = DL.filter (uncurry isFlagged) adjacents (x,y) b
-    let coveredAdjacents = DL.filter (uncurry isCovered) adjacents (x,y) b
-    if (not isCovered x y && adjacency == DL.length coveredAdjacents + DL.length flaggedAdjacents) then 
-            map (uncurry flag) coveredAdjacents
-    else return ()
-        --where   adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
-          --      flaggedAdjacents = DL.filter (uncurry isFlagged) adjacents (x,y) b
-            --    coveredAdjacents = DL.filter (uncurry isCovered) adjacents (x,y) b
+    let flaggedAdjacents = DL.filter (uncurry isFlagged) (adjacents (x,y) b)
+    let coveredAdjacents = DL. filter (uncurry (not isFlagged)) $ DL.filter (uncurry isCovered) (adjacents (x,y) b)
+    if (not isCovered x y && adjacency == length coveredAdjacents + length flaggedAdjacents) then 
+            DL.map (uncurry flag) coveredAdjacents
+    else return
 
-solveClear :: Int -> Int -> Game ()
-solveClear x y = do
+solveClear :: Coord -> Game ()
+solveClear (x,y) = do
     game <- get
     let b = fromJust $ preview board game
     let adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
-    let flaggedAdjacents = DL.filter (uncurry isFlagged) adjacents (x,y) b
-    let coveredAdjacents = DL.filter (uncurry isCovered) adjacents (x,y) b
+    let flaggedAdjacents = DL.filter (uncurry isFlagged) (adjacents (x,y) b)
+    let coveredAdjacents = DL. filter (uncurry (not isFlagged)) $ DL.filter (uncurry isCovered) (adjacents (x,y) b)
     if (not isCovered x y && adjacency == length flaggedAdjacents) then
-        map (uncurry uncover) coveredAdjacents
-    else return ()   
+        DL.map (uncurry uncover) coveredAdjacents
+    else return   
 
 --solveFlag across board THEN solveClear
 solveStep :: Game ()
 solveStep = do
     game <- get
     let b = fromJust $ preview board game
-    let xs = [0..(DL.length (b DL.!! 0))-1]
-    let ys = [0..DL.length b-1]
-    map (map solveFlag xs) ys
-    map (map solveClear xs) ys
+    let xs = [0..(length (b ! 0))-1]
+    let ys = [0..length b-1]
+    let coords = [(x,y) | x <- xs, y <- ys]
+    DL.map solveFlag coords
+    DL.map solveClear coords
 
 -- Find set of adjacent squares
 adjacents :: Coord -> Board -> [Coord]
 adjacents (x,y) board = DL.filter (inBounds) [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y-1),(x,y+1),(x+1,y-1),(x+1,y),(x+1,y+1)]
-    where   inBounds = (x>=0 && x<ncols) && (y>=0 && y<nrows)
-            nrows = DL.length board
-            ncols = DL.length board DL.!! 0
+    where   inBounds (x0,y0) = (x0>=0 && x0<ncols) && (y0>=0 && y0<nrows)
+            nrows = length board
+            ncols = length (board ! 0)
