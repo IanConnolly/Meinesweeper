@@ -5,7 +5,7 @@ module Meinesweeper.Game (Meinesweeper(..), Game(..), newMeinesweeper,
 import Meinesweeper.Board
 import qualified Meinesweeper.Field as MF
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
-                const, (==), not, ($), (.), unlines)
+                const, (==), (>=), (<), (&&), not, ($), (.), unlines, uncurry)
 import Control.Monad
 import Control.Monad.State
 import Control.Lens
@@ -110,3 +110,49 @@ modifySquare x y record val = modify $ over (board . element x . element y . rec
 viewSquare x y record = do
     g <- get
     return $ fromJust $ preview (board . element x . element y . record) g
+
+
+--Simple solver
+type Coord = (Int,Int)
+
+solveFlag :: Int -> Int -> Game ()
+solveFlag x y = do
+    game <- get
+    let b = fromJust $ preview board game
+    let adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
+    let flaggedAdjacents = DL.filter (uncurry isFlagged) adjacents (x,y) b
+    let coveredAdjacents = DL.filter (uncurry isCovered) adjacents (x,y) b
+    if (not isCovered x y && adjacency == DL.length coveredAdjacents + DL.length flaggedAdjacents) then 
+            map (uncurry flag) coveredAdjacents
+    else return ()
+        --where   adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
+          --      flaggedAdjacents = DL.filter (uncurry isFlagged) adjacents (x,y) b
+            --    coveredAdjacents = DL.filter (uncurry isCovered) adjacents (x,y) b
+
+solveClear :: Int -> Int -> Game ()
+solveClear x y = do
+    game <- get
+    let b = fromJust $ preview board game
+    let adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
+    let flaggedAdjacents = DL.filter (uncurry isFlagged) adjacents (x,y) b
+    let coveredAdjacents = DL.filter (uncurry isCovered) adjacents (x,y) b
+    if (not isCovered x y && adjacency == length flaggedAdjacents) then
+        map (uncurry uncover) coveredAdjacents
+    else return ()   
+
+--solveFlag across board THEN solveClear
+solveStep :: Game ()
+solveStep = do
+    game <- get
+    let b = fromJust $ preview board game
+    let xs = [0..(DL.length (b DL.!! 0))-1]
+    let ys = [0..DL.length b-1]
+    map (map solveFlag xs) ys
+    map (map solveClear xs) ys
+
+-- Find set of adjacent squares
+adjacents :: Coord -> Board -> [Coord]
+adjacents (x,y) board = DL.filter (inBounds) [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y-1),(x,y+1),(x+1,y-1),(x+1,y),(x+1,y+1)]
+    where   inBounds = (x>=0 && x<ncols) && (y>=0 && y<nrows)
+            nrows = DL.length board
+            ncols = DL.length board DL.!! 0
