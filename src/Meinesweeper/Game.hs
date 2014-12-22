@@ -4,7 +4,7 @@ module Meinesweeper.Game (Meinesweeper(..), Game(..), newMeinesweeper,
 
 import Meinesweeper.Board
 import qualified Meinesweeper.Field as MF
-import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..),
+import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..), otherwise,
                 const, (==), (>=), (<), (&&), not, ($), (.), unlines, uncurry)
 import Control.Monad
 import Control.Monad.State
@@ -129,9 +129,9 @@ type Coord = (Int,Int)
 
 solveFlag :: Coord -> [Game ()]
 solveFlag (x,y)
-    | (not isCovered x y && (adjacency == (DL.length coveredAdjacents + DL.length flaggedAdjacents))) = 
+    | (not (isCovered x y) && (adjacency == (DL.length coveredAdjacents + DL.length flaggedAdjacents))) = 
             DL.map (uncurry flag) coveredNotFlaggedAdjacents
-    | True = 
+    | otherwise = 
             []
     where   adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
             game = get
@@ -142,9 +142,9 @@ solveFlag (x,y)
 
 solveUncover :: Coord -> [Game ()]
 solveUncover (x,y)
-    | (not isCovered x y && (adjacency == DL.length flaggedAdjacents)) =
+    | (not (isCovered x y) && (adjacency == DL.length flaggedAdjacents)) =
         DL.map (uncurry uncover) coveredNotFlaggedAdjacents
-    | True = 
+    | otherwise = 
             []
     where   adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
             game = get
@@ -153,8 +153,7 @@ solveUncover (x,y)
             coveredAdjacents = DL.filter (uncurry isCovered) (adjacents (x,y) b)
             coveredNotFlaggedAdjacents = coveredAdjacents DL.\\ flaggedAdjacents  
 
-
---solveFlag across board THEN solveUncover
+--solveFlag across board THEN solveUncover across board
 solveStep :: Game ()
 solveStep = do
     game <- get
