@@ -116,8 +116,8 @@ viewSquare x y record = do
 -- Algorithm:
 --
 -- Flag criterion:
--- If an uncovered square has mine-adjacency = num adjacent covered and not flagged + num adjacent flagged {
---    flag covered adjacents
+-- If an uncovered square has mine-adjacency = num adjacent covered{
+--    flag unflagged covered adjacents
 -- }
 --
 -- Uncover criterion:
@@ -133,9 +133,8 @@ solveFlag game (x, y) =
         adjancies = adjacents (x, y) b
         covered = coveredAdjacents adjancies game
         flagged = flaggedAdjacents adjancies game
-        coveredNOTflagged = covered DL.\\ flagged
     in if not (evalState (isCovered x y) game) && (adjacency b == DL.length covered)
-          then DL.map (uncurry flag) coveredNOTflagged
+          then DL.map (uncurry flag) covered DL.\\ flagged
           else []
     where
         adjacency = fromJust . preview (element x . element y . MF.adjacentMines)
@@ -157,16 +156,17 @@ solveUncover game (x, y) =
         flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
+--For use in filtering Coords produced by adjacentCoords
 isCoord :: Coord -> Bool
 isCoord (x, y) = not (x == -1 && y == -1)
 
 adjacentCoords :: (Int -> Int -> Game Bool) -> Meinesweeper -> Coord -> Coord
 adjacentCoords action g (x,y) =
-    let flag = evalState (action x y) g
-    in if flag then (x, y)
+    let pred = evalState (action x y) g
+    in if pred then (x, y)
                else (-1, -1)
 
---solveFlag across board THEN solveUncover across board
+--solveFlag across board, then solveUncover across board
 solveStep :: Game ()
 solveStep = do
     game <- get
