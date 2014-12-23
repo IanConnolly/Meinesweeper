@@ -134,7 +134,7 @@ solveFlag game (x, y) =
         covered = coveredAdjacents adjancies game
         flagged = flaggedAdjacents adjancies game
     in if not (evalState (isCovered x y) game) && (adjacency b == DL.length covered)
-          then DL.map (uncurry flag) covered DL.\\ flagged
+          then DL.map (uncurry flag) (covered DL.\\ flagged)
           else []
     where
         adjacency = fromJust . preview (element x . element y . MF.adjacentMines)
