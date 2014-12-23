@@ -138,7 +138,7 @@ solveFlag game (x,y) =
           then DL.map (uncurry flag) (coveredNOTflagged)
           else []
     where
-        adjacency b = (computeAdjacencyMatrix b DL.!! y) DL.!! x
+        adjacency b = (computeAdjacencyMatrix b DL.!! x) DL.!! y
         flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
@@ -148,11 +148,13 @@ solveUncover game (x,y) =
       adjancies = adjacents (x,y) b
       covered = coveredAdjacents adjancies game
       flagged = flaggedAdjacents adjancies game
-  in if not (evalState (isCovered x y) game) && (adjacency b == DL.length flagged)
+  in if not (evalState (isCovered x y) game) && (adjacency b == 0)
+        then DL.map (uncurry uncover) (covered)
+  else if not (evalState (isCovered x y) game) && (adjacency b == DL.length flagged)
         then DL.map (uncurry uncover) (covered DL.\\ flagged)
-        else []
+  else []
     where
-        adjacency b = (computeAdjacencyMatrix b DL.!! y) DL.!! x
+        adjacency b = (computeAdjacencyMatrix b DL.!! x) DL.!! y
         flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
@@ -170,8 +172,8 @@ solveStep :: Game ()
 solveStep = do
     game <- get
     let b = fromJust $ preview board game
-    let xs = [0..(length (b ! 0))-1]
-    let ys = [0..length b-1]
+    let xs = [0..(length b)-1]
+    let ys = [0..length (b ! 0)-1]
     let coords = [(x,y) | x <- xs, y <- ys]
     let flagsActions = DL.map (solveFlag game) coords
     let uncoverActions = DL.map (solveUncover game) coords
@@ -184,8 +186,8 @@ solveStep = do
 adjacents :: Coord -> Board -> [Coord]
 adjacents (x,y) board = DL.filter (inBounds) [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y-1),(x,y+1),(x+1,y-1),(x+1,y),(x+1,y+1)]
     where   inBounds (x0,y0) = (x0>=0 && x0<ncols) && (y0>=0 && y0<nrows)
-            nrows = length board
-            ncols = length (board ! 0)
+            nrows = length (board ! 0)
+            ncols = length board
 
 runall :: [Game ()] -> Game ()
 runall [] = return ()
