@@ -63,7 +63,7 @@ addAdjacent b adjs = boardify $ addNums union
 insertMines :: [(Int, Int)] -> Board -> Board
 insertMines [] board = board
 insertMines (x:xs) board = insertMines xs (inserter x board)
-    where inserter (x, y) = over (element x . element y . MF.mined) (const True)
+    where inserter (x, y) = over (element y . element x . MF.mined) (const True)
 
 -- Board -> [[Int]]
 -- Each elem contains the number of surrounding Mines
