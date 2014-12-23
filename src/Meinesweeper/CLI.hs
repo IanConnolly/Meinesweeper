@@ -39,8 +39,8 @@ gameLoop state = do
     inputs <- inputPrompt
     case head inputs of
         "f" -> do
-            let x = digitToInt $ head $ inputs !! 1
-            let y = digitToInt $ head $ inputs !! 2
+            let x = (read $ inputs !! 1) :: Int
+            let y = (read $ inputs !! 2) :: Int
             let (res, newstate) = runState (rightClickField x y) state
             if res then
                 gameLoop newstate
@@ -55,8 +55,8 @@ gameLoop state = do
             else
                 gameLoop newstate
         otherwise -> do 
-            let x = digitToInt $ head $ inputs !! 0
-            let y = digitToInt $ head $ inputs !! 1
+            let x = (read $ inputs !! 0) :: Int 
+            let y = (read $ inputs !! 1) :: Int
             let (res, newstate) = runState (leftClickField x y) state
             if res then do
                 let won = evalState isWon newstate
