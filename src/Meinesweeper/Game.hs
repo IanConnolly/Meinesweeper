@@ -187,7 +187,7 @@ adjacents (x,y) board = DL.filter (inBounds) [(x - 1, y - 1), (x - 1, y),
                                               (x - 1, y + 1), (x, y - 1),
                                               (x, y + 1), (x + 1, y - 1),
                                               (x + 1, y), (x + 1,y + 1)]
-    where inBounds (x0,y0) = (x0 >= 0 && x0 < nrows) && (y0 >= 0 && y0 < ncols)
+    where inBounds (x0, y0) = (x0 >= 0 && x0 < nrows) && (y0 >= 0 && y0 < ncols)
           ncols = length (board ! 0)
           nrows = length board
 
