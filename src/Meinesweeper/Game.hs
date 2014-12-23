@@ -6,10 +6,10 @@ import Meinesweeper.Board
 import qualified Meinesweeper.Field as MF
 import Prelude (Bool(..), Int(..), Num(..), Show(..), String(..), otherwise,
                 const, (==), (>=), (<), (&&), not, ($), (.), unlines, uncurry)
-import Control.Monad
+import Control.Monad hiding (sequence_)
 import Control.Monad.State
 import Control.Lens
-import Data.Vector hiding (modify)
+import Data.Vector hiding (modify, sequence_)
 import Data.Maybe
 import System.Random
 import qualified Data.List as DL
@@ -177,7 +177,7 @@ solveStep = do
     let flagsActions' = DL.concat flagsActions
     let uncoverActions' = DL.concat uncoverActions
     let completeSolveStep = flagsActions' DL.++ uncoverActions'
-    runall game completeSolveStep
+    runall completeSolveStep
 
 -- Find set of adjacent squares
 adjacents :: Coord -> Board -> [Coord]
@@ -186,8 +186,10 @@ adjacents (x,y) board = DL.filter (inBounds) [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y-1
             nrows = length board
             ncols = length (board ! 0)
 
-runall :: Meinesweeper -> [Game ()] -> Game ()
-runall _ [] = return ()
-runall m (x:xs) = do
-    let m' = execState x m
-    runall m' xs
+runall :: [Game ()] -> Game ()
+runall [] = return ()
+runall (x:xs) = do
+    g <- get
+    let g' = execState x g
+    put g'
+    runall xs
