@@ -27,8 +27,8 @@ createBoard h w mcount prng =
     in addAdjacent b (computeAdjacencyMatrix b)
     where createEmptyBoard h w = replicate h $ replicate w MF.newField
           points = DL.take mcount $ DL.nub $ DL.zip xCoords yCoords -- :: [(Int, Int)]
-          xCoords = randomRs (0, w-1) (fst $ split prng)
-          yCoords = randomRs (0, h-1) (snd $ split prng)
+          xCoords = randomRs (0, h-1) (fst $ split prng)
+          yCoords = randomRs (0, w-1) (snd $ split prng)
 
 addCoordinates:: Board -> Board
 addCoordinates b = boardify $ addPoints union
