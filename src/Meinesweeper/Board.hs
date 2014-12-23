@@ -31,19 +31,13 @@ createBoard h w mcount prng =
           yCoords = randomRs (0, h-1) (snd $ split prng)
 
 addCoordinates:: Board -> Board
-addCoordinates b = boardify $ addIds union
+addCoordinates b = boardify $ addPoints union
     where rowLength = length (b ! 0)
           colLength = length b
           boardify = map fromList . fromList . group rowLength
-
-          points [] _ = []
-          points (x:xs) ys = createXs x ys DL.++ points xs ys
-
-          createXs _ [] = []
-          createXs x (y:ys) = (x,y) : createXs x ys
-
-          addIds = DL.map addId
-          addId (cell, num) = set MF.xy num cell
+          points xs ys = [(x,y) | x <- xs, y <- ys]
+          addPoints = DL.map addPoint
+          addPoint (cell, num) = set MF.xy num cell
           union = DL.zip (DL.concatMap toList (toList b)) (points [1..colLength] [1..rowLength])
 
 -- Turns list into list of list, by grouping every n elems in original
