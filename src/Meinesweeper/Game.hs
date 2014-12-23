@@ -148,9 +148,7 @@ solveUncover game (x,y) =
       adjancies = adjacents (x,y) b
       covered = coveredAdjacents adjancies game
       flagged = flaggedAdjacents adjancies game
-  in if not (evalState (isCovered x y) game) && (adjacency b == 0)
-        then DL.map (uncurry uncover) (covered)
-  else if not (evalState (isCovered x y) game) && (adjacency b == DL.length flagged)
+  if not (evalState (isCovered x y) game) && (adjacency b == DL.length flagged)
         then DL.map (uncurry uncover) (covered DL.\\ flagged)
   else []
     where
