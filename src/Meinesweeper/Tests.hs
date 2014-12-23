@@ -13,12 +13,12 @@ newtype Location = L Int
 
 main  = mapM_ (\(s, a) -> print s >> a) tests
  
-prop_matrixsize b = (DL.length $ DL.concat $ computeAdjacencyMatrix b) == (DV.length $ DV.concat $ DV.toList b)
+prop_matrixsize b = DL.length (DL.concat $ computeAdjacencyMatrix b) == DV.length (DV.concat $ DV.toList b)
     where _ = b :: Board
 
 prop_rightclickstep xs@(L x) ys@(L y) b = 
     let (val, newstate) = runState (rightClickField x y) b
-    in (_flagsLeft newstate) < (_flagsLeft b)
+    in _flagsLeft newstate < _flagsLeft b
     where _ = xs :: Location
           _ = ys :: Location
           _ = b :: Meinesweeper
@@ -30,7 +30,7 @@ instance Show Location where
     show (L x) = show x 
 
 instance Arbitrary Field where
-    arbitrary = return $ newField
+    arbitrary = return newField
 
 instance Arbitrary Board where
     arbitrary = do
@@ -43,9 +43,9 @@ instance Arbitrary Meinesweeper where
     arbitrary = do
         Positive flags <- arbitrary
         b <- arbitrary
-        return $ Meinesweeper { _flagsLeft = flags 
-                              , _board = b
-                              }
+        return Meinesweeper { _flagsLeft = flags 
+                            , _board = b
+                            }
  
 tests  = [("prop_matrixsize", quickCheck prop_matrixsize)
          ,("prop_rightclickstep", quickCheck prop_rightclickstep)]

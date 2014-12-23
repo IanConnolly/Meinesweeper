@@ -130,15 +130,15 @@ type Coord = (Int, Int)
 solveFlag :: Meinesweeper -> Coord -> [Game ()]
 solveFlag game (x, y) =
     let b = fromJust $ preview board game
-        adjancies = adjacents (x,y) b
+        adjancies = adjacents (x, y) b
         covered = coveredAdjacents adjancies game
         flagged = flaggedAdjacents adjancies game
         coveredNOTflagged = covered DL.\\ flagged
     in if not (evalState (isCovered x y) game) && (adjacency b == (DL.length coveredNOTflagged + DL.length flagged))
-          then DL.map (uncurry flag) (coveredNOTflagged)
+          then DL.map (uncurry flag) coveredNOTflagged
           else []
     where
-        adjacency b = (computeAdjacencyMatrix b DL.!! x) DL.!! y
+        adjacency = fromJust . preview (element x . element y . MF.adjacentMines)
         flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
@@ -153,14 +153,14 @@ solveUncover game (x, y) =
         then DL.map (uncurry uncover) (covered DL.\\ flagged)
   else []
     where
-        adjacency b = (computeAdjacencyMatrix b DL.!! x) DL.!! y
+        adjacency = fromJust . preview (element x . element y . MF.adjacentMines)
         flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
-isCoord :: (Int,Int) -> Bool
+isCoord :: Coord -> Bool
 isCoord (x, y) = not (x == -1 && y == -1)
 
-adjacentCoords :: (Int -> Int -> Game Bool) -> Meinesweeper -> (Int,Int) -> (Int,Int)
+adjacentCoords :: (Int -> Int -> Game Bool) -> Meinesweeper -> Coord -> Coord
 adjacentCoords action g (x,y) =
     let flag = evalState (action x y) g
     in if flag then (x, y)
@@ -171,8 +171,8 @@ solveStep :: Game ()
 solveStep = do
     game <- get
     let b = fromJust $ preview board game
-    let xs = [0..(length b) - 1]
-    let ys = [0..length (b ! 0)-1]
+    let xs = [0..length b - 1]
+    let ys = [0..length (b ! 0) - 1]
     let coords = [(x,y) | x <- xs, y <- ys]
     let flagsActions = DL.map (solveFlag game) coords
     let uncoverActions = DL.map (solveUncover game) coords
@@ -183,10 +183,10 @@ solveStep = do
 
 -- Find set of adjacent squares
 adjacents :: Coord -> Board -> [Coord]
-adjacents (x,y) board = DL.filter (inBounds) [(x - 1, y - 1), (x - 1, y),
-                                              (x - 1, y + 1), (x, y - 1),
-                                              (x, y + 1), (x + 1, y - 1),
-                                              (x + 1, y), (x + 1,y + 1)]
+adjacents (x,y) board = DL.filter inBounds [(x - 1, y - 1), (x - 1, y)
+                                           ,(x - 1, y + 1), (x, y - 1)
+                                           ,(x, y + 1), (x + 1, y - 1)
+                                           ,(x + 1, y), (x + 1,y + 1)]
     where inBounds (x0, y0) = (x0 >= 0 && x0 < nrows) && (y0 >= 0 && y0 < ncols)
           ncols = length (board ! 0)
           nrows = length board
