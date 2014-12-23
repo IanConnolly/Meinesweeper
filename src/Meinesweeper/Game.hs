@@ -125,10 +125,10 @@ viewSquare x y record = do
 --    uncover all adjacents not flagged
 -- }
 
-type Coord = (Int,Int)
+type Coord = (Int, Int)
 
 solveFlag :: Meinesweeper -> Coord -> [Game ()]
-solveFlag game (x,y) =
+solveFlag game (x, y) =
     let b = fromJust $ preview board game
         adjancies = adjacents (x,y) b
         covered = coveredAdjacents adjancies game
@@ -143,9 +143,9 @@ solveFlag game (x,y) =
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
 solveUncover :: Meinesweeper -> Coord -> [Game ()]
-solveUncover game (x,y) =
+solveUncover game (x, y) =
   let b = fromJust $ preview board game
-      adjancies = adjacents (x,y) b
+      adjancies = adjacents (x, y) b
       covered = coveredAdjacents adjancies game
       flagged = flaggedAdjacents adjancies game
   in
@@ -158,20 +158,20 @@ solveUncover game (x,y) =
         coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
 isCoord :: (Int,Int) -> Bool
-isCoord (x,y) = not (x == -1 && y == -1)
+isCoord (x, y) = not (x == -1 && y == -1)
 
 adjacentCoords :: (Int -> Int -> Game Bool) -> Meinesweeper -> (Int,Int) -> (Int,Int)
 adjacentCoords action g (x,y) =
     let flag = evalState (action x y) g
-    in if flag then (x,y)
-               else (-1,-1)
+    in if flag then (x, y)
+               else (-1, -1)
 
 --solveFlag across board THEN solveUncover across board
 solveStep :: Game ()
 solveStep = do
     game <- get
     let b = fromJust $ preview board game
-    let xs = [0..(length b)-1]
+    let xs = [0..(length b) - 1]
     let ys = [0..length (b ! 0)-1]
     let coords = [(x,y) | x <- xs, y <- ys]
     let flagsActions = DL.map (solveFlag game) coords
@@ -183,7 +183,10 @@ solveStep = do
 
 -- Find set of adjacent squares
 adjacents :: Coord -> Board -> [Coord]
-adjacents (x,y) board = DL.filter (inBounds) [(x-1,y-1),(x-1,y),(x-1,y+1),(x,y-1),(x,y+1),(x+1,y-1),(x+1,y),(x+1,y+1)]
+adjacents (x,y) board = DL.filter (inBounds) [(x - 1, y - 1), (x - 1, y),
+                                              (x - 1, y + 1), (x, y - 1),
+                                              (x, y + 1), (x + 1, y - 1),
+                                              (x + 1, y), (x + 1,y + 1)]
     where inBounds (x0,y0) = (x0 >= 0 && x0 < nrows) && (y0 >= 0 && y0 < ncols)
           ncols = length (board ! 0)
           nrows = length board
