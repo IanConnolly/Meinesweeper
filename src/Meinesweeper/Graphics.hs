@@ -88,7 +88,9 @@ makeGUI gameState h w m = do
 
     solver <- button f [text := "Solve"
                        ,on command := let solved = execState solveStep gameState
-                                      in close f >> makeGUI solved h w m]
+                                      in let won = evalState isWon solved
+                                         in if won then close f >> winloseScreen "You WON!"
+                                                   else close f >> makeGUI solved h w m]
 
     quit <- button f [text := "Quit"
                      ,on command := close f]
