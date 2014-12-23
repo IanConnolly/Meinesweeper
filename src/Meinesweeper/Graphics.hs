@@ -12,12 +12,15 @@ import qualified Data.Vector as DV
 startGraphicsLoop :: IO () -- entry point for export
 startGraphicsLoop = start mainMenu
 
+-- Create a new random gen and create Meinesweeper
+-- Make the game window using the Meinesweeper
 newBoard :: Int -> Int -> Int -> IO ()
 newBoard h w m = do
     g <- newStdGen
     let gameState = newMeinesweeper h w m g
     makeGUI gameState h w m
 
+-- Difficulty menu
 mainMenu :: IO ()
 mainMenu = do
 
@@ -42,6 +45,13 @@ mainMenu = do
                      ,floatCentre $ widget hard
                      ,floatCentre $ widget quit]]]
 
+-- Create a button from a field
+-- Set event for a left click
+--    if mine is clicked then the player is shown the loser screen
+--    otherwise if the game is won the player is shown the winner screen
+--              otherwise refreshes screen with button change
+-- Set even for right click
+--    update frame with button change
 fieldButton :: Frame () -> Int -> Int -> Int -> Meinesweeper -> Field -> IO (Button ())
 fieldButton f h w m gameState field
     | _flagged field = makeButton f h w m gameState xy "F"
@@ -58,6 +68,7 @@ fieldButton f h w m gameState field
                                                                                 else close f >> makeGUI s h w m >> winloseScreen "You LOST!"
                                                    ,on clickRight := \p -> let (_,s) = runState (rightClickField (x - 1) (y - 1)) game
                                                                            in close f >> makeGUI s h w m]
+-- Screen to show if the player won or lost
 winloseScreen :: String -> IO ()
 winloseScreen txt = do
     f <- frameFixed [text := txt
@@ -71,13 +82,16 @@ winloseScreen txt = do
 paintMessageText :: String -> DC a -> t -> IO ()
 paintMessageText txt dc area = drawText dc txt (pt 10 10) [fontSize := 36]
 
+-- Create a board of buttons using fieldButton function
 boardGUI :: Board -> Frame () -> Int -> Int -> Int -> Meinesweeper -> IO [[Button ()]]
 boardGUI b f h w m g = mapM (mapM (fieldButton f h w m g)) (DV.toList $ DV.map DV.toList b)
 
+-- Turn the buttons into widgets
 widgetise :: Int -> [[Button ()]] -> [Layout]
 widgetise _ [] = []
 widgetise r (b:bs) = row r (map widget b) : widgetise r bs
 
+-- Create the GUI board and display it in a window
 makeGUI :: Meinesweeper -> Int -> Int -> Int -> IO ()
 makeGUI gameState h w m = do
     f <- frameFixed [text := "Meinesweeper"]
