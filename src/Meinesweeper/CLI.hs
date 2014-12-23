@@ -47,6 +47,13 @@ gameLoop state = do
             else do
                 putStrLn outOfFlags
                 gameLoop newstate
+
+        "s" -> do
+            let (won, newstate) = runState (solveStep >> isWon) state
+            if won then
+                return True
+            else
+                gameLoop newstate
         otherwise -> do 
             let x = digitToInt $ head $ inputs !! 0
             let y = digitToInt $ head $ inputs !! 1
@@ -72,8 +79,9 @@ difficultyPrompt = do
 inputPrompt :: IO [String]
 inputPrompt = do
     putStrLn "Commands:"
-    putStrLn "f x y -> Flag cell (x,y)"
     putStrLn "x y -> Uncover cell (x,y)"
+    putStrLn "f x y -> Flag cell (x,y)"
+    putStrLn "s -> cheat! take a solve step"
     inp <- prompt "> "
     return $ words inp
 
