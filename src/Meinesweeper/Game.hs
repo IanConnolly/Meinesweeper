@@ -24,7 +24,7 @@ makeLenses ''Meinesweeper
 instance Show Meinesweeper where
     show b = unlines [show $ b ^. board,
                       "Flags: " DL.++ show (b ^. flagsLeft)]
- 
+
 type Game = State Meinesweeper
 
 newMeinesweeper :: Int -> Int -> Int -> StdGen -> Meinesweeper
@@ -128,30 +128,42 @@ viewSquare x y record = do
 type Coord = (Int,Int)
 
 solveFlag :: Coord -> [Game ()]
-solveFlag (x,y)
-    | (not (isCovered x y) && (adjacency == (DL.length coveredAdjacents + DL.length flaggedAdjacents))) = 
-            DL.map (uncurry flag) coveredNotFlaggedAdjacents
-    | otherwise = 
-            []
-    where   adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
-            game = get
-            b = fromJust $ preview board game
-            flaggedAdjacents = DL.filter (uncurry isFlagged) (adjacents (x,y) b)
-            coveredAdjacents = DL.filter (uncurry isCovered) (adjacents (x,y) b)
-            coveredNotFlaggedAdjacents = coveredAdjacents DL.\\ flaggedAdjacents
+solveFlag (x,y) = do
+    game <- get
+    let b = fromJust $ preview board game
+    let adjancies = adjacents (x,y) b
+    let covered = coveredAdjacents adjancies game
+    let flagged = flaggedAdjacents adjancies game
+    if not (evalState (isCovered x y) game) && (adjacency b == (DL.length covered + DL.length flagged))
+       then DL.map (uncurry flag) (covered DL.\\ flagged)
+       else []
+    where
+        adjacency b = (computeAdjacencyMatrix b DL.!! y) DL.!! x
+        flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
+        coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
 
 solveUncover :: Coord -> [Game ()]
-solveUncover (x,y)
-    | (not (isCovered x y) && (adjacency == DL.length flaggedAdjacents)) =
-        DL.map (uncurry uncover) coveredNotFlaggedAdjacents
-    | otherwise = 
-            []
-    where   adjacency = ((computeAdjacencyMatrix b) DL.!! y) DL.!! x
-            game = get
-            b = fromJust $ preview board game
-            flaggedAdjacents = DL.filter (uncurry isFlagged) (adjacents (x,y) b)
-            coveredAdjacents = DL.filter (uncurry isCovered) (adjacents (x,y) b)
-            coveredNotFlaggedAdjacents = coveredAdjacents DL.\\ flaggedAdjacents  
+solveUncover (x,y) = do
+  game <- get
+  let b = fromJust $ preview board game
+  let adjancies = adjacents (x,y) b
+  let covered = coveredAdjacents adjancies game
+  let flagged = flaggedAdjacents adjancies game
+  if not (evalState (isCovered x y) game) && (adjacency b == DL.length flagged)
+    then DL.map (uncurry flag) (covered DL.\\ flagged)
+    else []
+    where
+      adjacency b = (computeAdjacencyMatrix b DL.!! y) DL.!! x
+      flaggedAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isFlagged g) a
+      coveredAdjacents a g = DL.filter isCoord $ DL.map (adjacentCoords isCovered g) a
+
+isCoord (x,y) = not (x == -1 && y == -1)
+
+adjacentCoords :: (Int -> Int -> Game Bool) -> Meinesweeper -> (Int,Int) -> (Int,Int)
+adjacentCoords action g (x,y) =
+    let flag = evalState (action x y) g
+    in if flag then (x,y)
+               else (-1,-1)
 
 --solveFlag across board THEN solveUncover across board
 solveStep :: Game ()
