@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Meinesweeper.Game (Meinesweeper(..), Game(..), newMeinesweeper,
-                          leftClickField, rightClickField, isWon) where
+                          leftClickField, rightClickField, isWon, solveStep) where
 
 import Meinesweeper.Board
 import qualified Meinesweeper.Field as MF
