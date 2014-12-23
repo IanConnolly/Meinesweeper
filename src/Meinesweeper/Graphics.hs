@@ -86,7 +86,9 @@ makeGUI gameState h w m = do
     boardButtons <- boardGUI board f h w m gameState
     let gui = widgetise h boardButtons
 
-    solver <- button f [text := "Solve"]
+    solver <- button f [text := "Solve"
+                       ,on command := let solved = execState solveStep gameState
+                                      in close f >> makeGUI solved h w m]
 
     quit <- button f [text := "Quit"
                      ,on command := close f]
