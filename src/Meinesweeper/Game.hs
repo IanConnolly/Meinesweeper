@@ -133,8 +133,9 @@ solveFlag game (x,y) =
         adjancies = adjacents (x,y) b
         covered = coveredAdjacents adjancies game
         flagged = flaggedAdjacents adjancies game
-    in if not (evalState (isCovered x y) game) && (adjacency b == (DL.length covered + DL.length flagged))
-          then DL.map (uncurry flag) (covered DL.\\ flagged)
+        coveredNOTflagged = covered DL.\\ flagged
+    in if not (evalState (isCovered x y) game) && (adjacency b == (DL.length coveredNOTflagged + DL.length flagged))
+          then DL.map (uncurry flag) (coveredNOTflagged)
           else []
     where
         adjacency b = (computeAdjacencyMatrix b DL.!! y) DL.!! x
@@ -148,7 +149,7 @@ solveUncover game (x,y) =
       covered = coveredAdjacents adjancies game
       flagged = flaggedAdjacents adjancies game
   in if not (evalState (isCovered x y) game) && (adjacency b == DL.length flagged)
-        then DL.map (uncurry flag) (covered DL.\\ flagged)
+        then DL.map (uncurry uncover) (covered DL.\\ flagged)
         else []
     where
         adjacency b = (computeAdjacencyMatrix b DL.!! y) DL.!! x
