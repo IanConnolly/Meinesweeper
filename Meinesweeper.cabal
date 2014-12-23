@@ -1,5 +1,5 @@
 name:                Meinesweeper
-version:             0.1.0.0
+version:             1.0.0.0
 synopsis:            Minesweeper in Haskell
 license:             MIT
 license-file:        LICENSE
